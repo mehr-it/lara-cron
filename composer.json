@@ -1,0 +1,39 @@
+{
+  "name": "mehr-it/lara-cron",
+  "description": "Dynamic, user manageable, distributed cron jobs for Laravel",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Christopher Mieger",
+      "email": "mail@mehr-it.info"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "MehrIt\\LaraCron\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MehrItLaraCronTest\\": "test/"
+    }
+  },
+  "require": {
+    "php": ">=7.1",
+    "moontoast/math": "dev-master"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7.4",
+    "orchestra/testbench": "3.7.7"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "MehrIt\\LaraCron\\Provider\\CronServiceProvider"
+      ],
+      "aliases": {
+        "Cron": "MehrIt\\LaraCron\\Facades\\Cron"
+      }
+    }
+  }
+}
