@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bdeb449227f62e9aa3549d6e3de4cde3",
+    "content-hash": "d848635a209fbeff09c1062d666344d5",
     "packages": [
         {
             "name": "moontoast/math",
-            "version": "dev-master",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/moontoast-math.git",
-                "reference": "56a646b68c916d6ab7b0a5311141fd5dbf4f9e48"
+                "reference": "c2792a25df5cad4ff3d760dd37078fc5b6fccc79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/moontoast-math/zipball/56a646b68c916d6ab7b0a5311141fd5dbf4f9e48",
-                "reference": "56a646b68c916d6ab7b0a5311141fd5dbf4f9e48",
+                "url": "https://api.github.com/repos/ramsey/moontoast-math/zipball/c2792a25df5cad4ff3d760dd37078fc5b6fccc79",
+                "reference": "c2792a25df5cad4ff3d760dd37078fc5b6fccc79",
                 "shasum": ""
             },
             "require": {
@@ -53,7 +53,7 @@
                 "bcmath",
                 "math"
             ],
-            "time": "2017-03-10T15:41:32+00:00"
+            "time": "2017-02-16T16:54:46+00:00"
         }
     ],
     "packages-dev": [
@@ -4683,9 +4683,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "moontoast/math": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
