@@ -5,11 +5,11 @@
 
 
 	use Illuminate\Console\Scheduling\Schedule;
-	use Illuminate\Contracts\Events\Dispatcher;
 	use Illuminate\Support\ServiceProvider;
 	use MehrIt\LaraCron\Command\CronDispatchCommand;
 	use MehrIt\LaraCron\Contracts\CronManager;
 	use MehrIt\LaraCron\Contracts\CronSchedule;
+	use MehrIt\LaraCron\Validation\CronExpressionValidationRule;
 
 	class CronServiceProvider extends ServiceProvider
 	{
@@ -30,7 +30,7 @@
 		public $singletons = [
 			CronDispatchCommand::class => CronDispatchCommand::class,
 			CronManager::class         => \MehrIt\LaraCron\CronManager::class,
-			CronSchedule::class         => \MehrIt\LaraCron\CronSchedule::class,
+			CronSchedule::class        => \MehrIt\LaraCron\CronSchedule::class,
 		];
 
 		/**
@@ -39,6 +39,8 @@
 		 * @return void
 		 */
 		public function boot() {
+
+			$this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', self::PACKAGE_NAME);
 
 			if ($this->app->runningInConsole()) {
 
@@ -50,9 +52,10 @@
 				// migrations
 				$this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
-				// publish config
+				// publish config and translations
 				$this->publishes([
 					__DIR__ . '/../../config/config.php' => config_path(self::PACKAGE_NAME . '.php'),
+					__DIR__ . '/../../resources/lang' => resource_path('lang/vendor/' . self::PACKAGE_NAME),
 				]);
 
 				// schedule cron job dispatch using laravel's dispatcher
@@ -91,6 +94,7 @@
 				CronDispatchCommand::class,
 				CronManager::class,
 				CronSchedule::class,
+				CronExpressionValidationRule::class
 			];
 		}
 

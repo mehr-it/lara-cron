@@ -109,3 +109,13 @@ repeating and which not:
 | `0 1-4 * * *`		  | `0 0-2 * * *`        |
 |           		  | `*/5 2 * * *`        |
 |           		  | `5 2-12/2 * * *`     |
+
+
+## User input validation
+
+To validate cron expressions input by users, you may use
+the included `CronExpressionValidationRule`:
+
+	$rules = [
+		'fieldName' => ['required', new CronExpressionValidationRule()],
+	]
