@@ -3,9 +3,7 @@
 
 	namespace MehrIt\LaraCron\Contracts;
 
-	use Illuminate\Contracts\Queue\ShouldQueue;
-
-	interface CronJob extends ShouldQueue
+	interface CronJob
 	{
 
 		/**

@@ -9,6 +9,7 @@
 	namespace MehrIt\LaraCron;
 
 
+	use Illuminate\Contracts\Bus\QueueingDispatcher;
 	use Illuminate\Support\Str;
 	use MehrIt\LaraCron\Contracts;
 	use MehrIt\LaraCron\Contracts\CronExpression;
@@ -38,6 +39,10 @@
 		 */
 		protected $scheduleLog;
 
+		/**
+		 * @var QueueingDispatcher
+		 */
+		protected $dispatcher;
 
 		/**
 		 * @inheritDoc
@@ -170,16 +175,13 @@
 				$job->setCronDispatchTs($now);
 			}
 
-			// create dispatch
-			$pendingDispatch = dispatch($job);
-
 			// set delay, if desired execution time is in feature
 			$delay = $ts - $now;
 			if ($delay > 0)
-				$pendingDispatch->delay($delay);
+				$job->delay($delay);
 
-			// explicit destruct, so pending dispatch is flushed
-			$pendingDispatch = null;
+			// create dispatch
+			$this->getDispatcher()->dispatchToQueue($job);
 
 			// log the timestamp
 			$this->getScheduleLog()->log($schedule->getKey(), $ts);
@@ -205,6 +207,13 @@
 				$this->scheduleLog = $this->makeScheduleLog(config('cron.scheduleLog'));
 
 			return $this->scheduleLog;
+		}
+
+		public function getDispatcher() : QueueingDispatcher {
+			if (!$this->dispatcher)
+				$this->dispatcher = app(QueueingDispatcher::class);
+
+			return $this->dispatcher;
 		}
 
 	}
