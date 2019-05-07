@@ -487,16 +487,30 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				->expects($this->exactly(2))
 				->method('nextAfter')
-				->with(
-					$this->callback(function ($v) use ($now) {
-						return $now <= $v && $v <= $now + 10;
-					}),
-					$this->callback(function ($v) use ($now) {
-						return $now + 6000 <= $v && $v <= $now + 6000 + 10;
-					})
+				->withConsecutive(
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now <= $v && $v <= $now + 10;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$this->callback(function ($v) use ($now) {
+							return $v == $now + 1000;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					]
 				)
-				->willReturn($now + 1000);
+				->willReturnOnConsecutiveCalls(
+					$now + 1000,
+					null
+				);
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock1
@@ -567,16 +581,28 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				->expects($this->exactly(2))
 				->method('nextAfter')
-				->with(
+				->withConsecutive(
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now <= $v && $v <= $now + 10;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
 					$this->callback(function ($v) use ($now) {
-						return $now <= $v && $v <= $now + 10;
+						return $v == $now + 1000;
 					}),
 					$this->callback(function ($v) use ($now) {
 						return $now + 6000 <= $v && $v <= $now + 6000 + 10;
 					})
 				)
-				->willReturn($now + 1000);
+				->willReturnOnConsecutiveCalls(
+					$now + 1000,
+					null
+				);
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock1
@@ -632,7 +658,7 @@
 			});
 		}
 
-		public function testDispatch_noneActive() {
+		public function testDispatch_oneActive_multipleTimesDue() {
 
 			config()->set('cron.scheduleLog', 'testing');
 			config()->set('cron.store', 'testing');
@@ -645,16 +671,141 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				->expects($this->exactly(4))
 				->method('nextAfter')
-				->with(
-					$this->callback(function ($v) use ($now) {
-						return $now <= $v && $v <= $now + 10;
-					}),
-					$this->callback(function ($v) use ($now) {
-						return $now + 6000 <= $v && $v <= $now + 6000 + 10;
-					})
+				->withConsecutive(
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now <= $v && $v <= $now + 10;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now + 1000,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now + 2000,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now + 3000,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					]
 				)
-				->willReturn($now + 1000);
+				->willReturnOnConsecutiveCalls(
+					$now + 1000,
+					$now + 2000,
+					$now + 3000,
+					null
+				);
+
+			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
+			$scheduleMock1
+				->method('getExpression')
+				->willReturn($expressionMock1);
+			$scheduleMock1
+				->method('getKey')
+				->willReturn('key1');
+			$scheduleMock1
+				->method('getCatchUpTimeout')
+				->willReturn(500);
+			$scheduleMock1
+				->method('isActive')
+				->willReturn(true);
+			$scheduleMock1
+				->method('getJob')
+				->willReturn($task);
+
+
+			$logMock = $this->getMockBuilder(CronScheduleLog::class)->getMock();
+			$logMock
+				->method('getLastSchedule')
+				->with('key1')
+				->willReturn($lastScheduled);
+
+			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
+			$storeMock
+				->method('all')
+				->with(null)
+				->willReturn(new \ArrayIterator([
+					$scheduleMock1,
+				]));
+
+
+			$manager = new CronManager();
+			$manager->registerScheduleLogDriver('testing', function () use ($logMock) {
+				return $logMock;
+			});
+			$manager->registerStoreDriver('testing', function () use ($storeMock) {
+				return $storeMock;
+			});
+
+
+			Queue::fake();
+
+			$this->assertSame(3, $manager->dispatch(6000));
+
+			// upcoming job
+			$l = [
+				'a' => 0,
+				'b' => 0,
+				'c' => 0
+			];
+			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($now, &$l) {
+				return ($job instanceof CronJob &&
+				       $job->getCronScheduleKey() === 'key1' &&
+				       $job->getCronScheduledTs() === $now + 1000 &&
+				       $job->getCronDispatchTs() >= $now - 10 && $job->getCronDispatchTs() <= $now &&
+				       $job->delay <= 1000 && $job->delay >= 995 &&
+						++$l['a']
+				       ) ||
+				       (
+					       $job instanceof CronJob &&
+					       $job->getCronScheduleKey() === 'key1' &&
+					       $job->getCronScheduledTs() === $now + 2000 &&
+					       $job->getCronDispatchTs() >= $now - 10 && $job->getCronDispatchTs() <= $now &&
+					       $job->delay <= 2000 && $job->delay >= 1995 &&
+					       ++$l['b']
+				       )
+				       ||
+				       (
+					       $job instanceof CronJob &&
+					       $job->getCronScheduleKey() === 'key1' &&
+					       $job->getCronScheduledTs() === $now + 3000 &&
+					       $job->getCronDispatchTs() >= $now - 10 && $job->getCronDispatchTs() <= $now &&
+					       $job->delay <= 3000 && $job->delay >= 2995
+					       && ++$l['c']
+				       )
+					;
+			});
+
+			$this->assertEquals(['a' => 1, 'b' => 1, 'c' => 1], $l);
+
+		}
+
+		public function testDispatch_noneActive() {
+
+			config()->set('cron.scheduleLog', 'testing');
+			config()->set('cron.store', 'testing');
+
+
+			$lastScheduled = null;
+
+			$task = new CronManagerTestJob();
+
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1
+				->expects($this->never())
+				->method('nextAfter');
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock1
@@ -720,6 +871,7 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				->expects($this->once())
 				->method('nextAfter')
 				->with(
 					$this->callback(function ($v) use ($now) {
@@ -793,16 +945,30 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				->expects($this->exactly(2))
 				->method('nextAfter')
-				->with(
-					$this->callback(function ($v) use ($now) {
-						return $now <= $v && $v <= $now + 10;
-					}),
-					$this->callback(function ($v) use ($now) {
-						return $now + 500 <= $v && $v <= $now + 500 + 10;
-					})
+				->withConsecutive(
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now <= $v && $v <= $now + 10;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 500 <= $v && $v <= $now + 500 + 10;
+						})
+					],
+					[
+						$this->callback(function ($v) use ($now) {
+							return $v == $now + 100;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 500 <= $v && $v <= $now + 500 + 10;
+						})
+					]
 				)
-				->willReturn($now + 100);
+				->willReturnOnConsecutiveCalls(
+					$now + 100,
+					null
+				);
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock1
@@ -868,15 +1034,28 @@
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
 				->method('nextAfter')
-				->with(
-					$this->callback(function ($v) use ($now) {
-						return $now <= $v && $v <= $now + 10;
-					}),
-					$this->callback(function ($v) use ($now) {
-						return $now + 6000 <= $v && $v <= $now + 6000 + 10;
-					})
+				->withConsecutive(
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now <= $v && $v <= $now + 10;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$this->callback(function ($v) use ($now) {
+							return $v === $now + 1000;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					]
 				)
-				->willReturn($now + 1000);
+				->willReturnOnConsecutiveCalls(
+					$now + 1000,
+					null
+				);
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock1
@@ -948,6 +1127,7 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				//->expects($this->exactly(3))
 				->method('nextAfter')
 				->withConsecutive(
 					[
@@ -963,9 +1143,26 @@
 						$this->callback(function ($v) use ($now) {
 							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
 						})
+					],
+					[
+						$now + 1000,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now - 300,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
 					]
 				)
-				->willReturn($now + 1000); // no catchup is required because next after last is the same as next after current timestamp
+				->willReturnOnConsecutiveCalls(
+					$now + 1000,
+					$now + 1000,
+					null,
+					null
+				); // no catchup is required because next after last is the same as next after current timestamp
 
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
@@ -1037,6 +1234,7 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				->expects($this->exactly(5))
 				->method('nextAfter')
 				->withConsecutive(
 					[
@@ -1054,7 +1252,7 @@
 						})
 					]
 				)
-				->willReturnOnConsecutiveCalls($now + 1000, $now - 150, $now + 1000); // no catchup is required because next after last is the same as next after current timestamp
+				->willReturnOnConsecutiveCalls($now + 1000, $now - 150, $now + 1000, null, null); // no catchup is required because next after last is the same as next after current timestamp
 
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
@@ -1105,17 +1303,23 @@
 
 
 			// catchup job
-			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($task, $now) {
+			$l = [
+				'a' => 0,
+				'b' => 0,
+			];
+			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($task, $now, &$l) {
 				return ($job instanceof CronJob &&
 				        $job->getCronScheduleKey() === 'key1' &&
 				        $job->getCronScheduledTs() === $now - 150 &&
-				        $job->delay == 0)
+				        $job->delay == 0 && ++$l['a'])
 					|| ($job instanceof CronJob &&
 					    $job->getCronScheduleKey() === 'key1' &&
 					    $job->getCronScheduledTs() === $now + 1000 &&
-					    $job->delay <= 1000 && $job->delay >= 995);
+					    $job->delay <= 1000 && $job->delay >= 995 && ++$l['b']);
 
 			});
+
+			$this->assertEquals(['a' => 1, 'b' => 1], $l);
 
 		}
 
@@ -1133,6 +1337,7 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				->expects($this->exactly(6))
 				->method('nextAfter')
 				->withConsecutive(
 					[
@@ -1150,7 +1355,7 @@
 						})
 					]
 				)
-				->willReturnOnConsecutiveCalls($now + 1000, $now - 150, $now - 100, $now + 1000); // no catchup is required because next after last is the same as next after current timestamp
+				->willReturnOnConsecutiveCalls($now + 1000, $now - 150, $now - 100, $now + 1000, null, null); // no catchup is required because next after last is the same as next after current timestamp
 
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
@@ -1199,24 +1404,31 @@
 
 			$this->assertSame(3, $manager->dispatch(6000));
 
-			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($task, $now) {
+			$l = [
+				'a' => 0,
+				'b' => 0,
+				'c' => 0
+			];
+			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($task, $now, &$l) {
 				return ($job instanceof CronJob &&
 				       $job->getCronScheduleKey() === 'key1' &&
 				       $job->getCronScheduledTs() === $now - 150 &&
-				       $job->delay == 0) || (
+				       $job->delay == 0 && ++$l['a']) || (
 					       $job instanceof CronJob &&
 					       $job->getCronScheduleKey() === 'key1' &&
 					       $job->getCronScheduledTs() === $now - 100 &&
-					       $job->delay == 0
+					       $job->delay == 0 && ++$l['b']
 				       ) || (
 						$job instanceof CronJob &&
 						$job->getCronScheduleKey() === 'key1' &&
 						$job->getCronScheduledTs() === $now + 1000 &&
-						$job->delay <= 1000 && $job->delay >= 995
+						$job->delay <= 1000 && $job->delay >= 995 && ++$l['c']
 						)
 					;
 
 			});
+
+			$this->assertEquals(['a' => 1, 'b' => 1, 'c' => 1], $l);
 		}
 
 
@@ -1233,6 +1445,7 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				->expects($this->exactly(6))
 				->method('nextAfter')
 				->withConsecutive(
 					[
@@ -1250,7 +1463,7 @@
 						})
 					]
 				)
-				->willReturnOnConsecutiveCalls($now + 1000, $now - 150, $now - 100, $now + 1000); // no catchup is required because next after last is the same as next after current timestamp
+				->willReturnOnConsecutiveCalls($now + 1000, $now - 150, $now - 100, $now + 1000, null, null); // no catchup is required because next after last is the same as next after current timestamp
 
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
@@ -1299,16 +1512,21 @@
 
 			$this->assertSame(2, $manager->dispatch(6000));
 
-			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($task, $now) {
+			$l = [
+				'a' => 0,
+				'b' => 0,
+			];
+			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($task, $now, &$l) {
 				return ($job instanceof CronJob &&
 				       $job->getCronScheduleKey() === 'key1' &&
 				       $job->getCronScheduledTs() === $now - 100 &&
-				       $job->delay == 0) || ($job instanceof CronJob &&
+				       $job->delay == 0 && ++$l['a']) || ($job instanceof CronJob &&
 				                             $job->getCronScheduleKey() === 'key1' &&
 				                             $job->getCronScheduledTs() === $now + 1000 &&
-				                             $job->delay <= 1000 && $job->delay >= 995);
+				                             $job->delay <= 1000 && $job->delay >= 995 && ++$l['b']);
 
 			});
+			$this->assertEquals(['a' => 1, 'b' => 1], $l);
 
 		}
 
@@ -1322,20 +1540,35 @@
 			$lastScheduled = null;
 
 			$task = new CronManagerTestJob();
-			$task2 = $this->getMockBuilder(\MehrIt\LaraCron\Contracts\CronJob::class)->getMock();
+			$task2 = new CronManagerTestJob();;
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
+				->expects($this->exactly(3))
 				->method('nextAfter')
-				->with(
-					$this->callback(function ($v) use ($now) {
-						return $now <= $v && $v <= $now + 10;
-					}),
-					$this->callback(function ($v) use ($now) {
-						return $now + 6000 <= $v && $v <= $now + 6000 + 10;
-					})
+				->withConsecutive(
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now <= $v && $v <= $now + 10;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now + 1000,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now + 1000,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					]
 				)
-				->willReturn($now + 1000);
+				->willReturnOnConsecutiveCalls($now + 1000, null, null);
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock1
@@ -1356,16 +1589,31 @@
 
 			$expressionMock2 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock2
+				->expects($this->exactly(3))
 				->method('nextAfter')
-				->with(
-					$this->callback(function ($v) use ($now) {
-						return $now <= $v && $v <= $now + 10;
-					}),
-					$this->callback(function ($v) use ($now) {
-						return $now + 6000 <= $v && $v <= $now + 6000 + 10;
-					})
+				->withConsecutive(
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now <= $v && $v <= $now + 10;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now + 2000,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now + 2000,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					]
 				)
-				->willReturn($now + 2000);
+				->willReturnOnConsecutiveCalls($now + 2000, null, null);
 
 			$scheduleMock2 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock2
@@ -1388,8 +1636,13 @@
 			$logMock = $this->getMockBuilder(CronScheduleLog::class)->getMock();
 			$logMock
 				->method('getLastSchedule')
-				->withConsecutive(['key1'], ['key2'])
-				->willReturn($lastScheduled);
+				->withConsecutive(['key1'], ['key1'], ['key2'], ['key2'])
+				->willReturnOnConsecutiveCalls(
+					$lastScheduled,
+					$now + 1000,
+					$lastScheduled,
+					$now + 2000
+				);
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1414,15 +1667,21 @@
 
 			$this->assertSame(2, $manager->dispatch(6000));
 
-			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($task, $now) {
+			$l = [
+				'a' => 0,
+				'b' => 0,
+			];
+			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($task, $now, &$l) {
 				return ($job instanceof CronJob &&
 				       $job->getCronScheduleKey() === 'key1' &&
 				       $job->getCronScheduledTs() === $now + 1000 &&
-				       $job->delay <= 1000 && $job->delay >= 995) || ($job instanceof CronJob &&
+				       $job->delay <= 1000 && $job->delay >= 995 && ++$l['a']) || ($job instanceof CronJob &&
 				                                                      $job->getCronScheduleKey() === 'key2' &&
 				                                                      $job->getCronScheduledTs() === $now + 2000 &&
-				                                                      $job->delay <= 2000 && $job->delay >= 1995);
+				                                                      $job->delay <= 2000 && $job->delay >= 1995 && ++$l['b']);
 			});
+
+			$this->assertEquals(['a' => 1, 'b' => 1], $l);
 
 		}
 
@@ -1440,16 +1699,8 @@
 
 			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock1
-				->method('nextAfter')
-				->with(
-					$this->callback(function ($v) use ($now) {
-						return $now <= $v && $v <= $now + 10;
-					}),
-					$this->callback(function ($v) use ($now) {
-						return $now + 6000 <= $v && $v <= $now + 6000 + 10;
-					})
-				)
-				->willReturn($now + 1000);
+				->expects($this->never())
+				->method('nextAfter');
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock1
@@ -1470,16 +1721,25 @@
 
 			$expressionMock2 = $this->getMockBuilder(CronExpression::class)->getMock();
 			$expressionMock2
+				->expects($this->exactly(2))
 				->method('nextAfter')
-				->with(
-					$this->callback(function ($v) use ($now) {
-						return $now <= $v && $v <= $now + 10;
-					}),
-					$this->callback(function ($v) use ($now) {
-						return $now + 6000 <= $v && $v <= $now + 6000 + 10;
-					})
+				->withConsecutive(
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now <= $v && $v <= $now + 10;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now + 2000,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					]
 				)
-				->willReturn($now + 2000);
+				->willReturnOnConsecutiveCalls($now + 2000, null);
 
 			$scheduleMock2 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock2
@@ -1559,7 +1819,7 @@
 			$expressionMock1
 				->method('nextAfter')
 				->with()
-				->willReturn($now + 1000);
+				->willReturnOnConsecutiveCalls($now + 1000);
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
 			$scheduleMock1

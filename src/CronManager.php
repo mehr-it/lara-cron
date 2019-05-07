@@ -119,34 +119,43 @@
 
 				if ($currSchedule->isActive()) {
 
-					$lastScheduled = $scheduleLog->getLastSchedule($currSchedule->getKey());
-					$next = $currSchedule->getExpression()->nextAfter($ts, $maxTs);
+					$next = $ts;
+					$last = null;
 
-					// check if we missed a scheduled job and therefore need to catchup
-					if ($lastScheduled !== null && $currSchedule->getCatchUpTimeout() > 0) {
+					while ($next && $next !== $last) {
 
-						$nextAfterLast = $lastScheduled;
-						while (true) {
+						$lastScheduled = $scheduleLog->getLastSchedule($currSchedule->getKey());
 
-							// calculate next desired execution time
-							$nextAfterLast = $currSchedule->getExpression()->nextAfter($nextAfterLast, $maxTs);
+						$last = $next;
+						$next = $currSchedule->getExpression()->nextAfter($last, $maxTs);
 
-							// stop, if reaching the regular next date
-							if ($nextAfterLast >= $next)
-								break;
+						// check if we missed a scheduled job and therefore need to catchup
+						if ($lastScheduled !== null && $currSchedule->getCatchUpTimeout() > 0) {
 
-							// if within catchup timeout, we schedule the missed job
-							if ($nextAfterLast > $ts - $currSchedule->getCatchUpTimeout()) {
-								$this->dispatchFor($currSchedule, $nextAfterLast);
-								++$dispatchCount;
+							$nextAfterLast = $lastScheduled;
+							while (true) {
+
+								// calculate next desired execution time
+								$nextAfterLast = $currSchedule->getExpression()->nextAfter($nextAfterLast, $maxTs);
+
+								// stop, if reaching the regular next date
+								if ($nextAfterLast >= $next)
+									break;
+
+								// if within catchup timeout, we schedule the missed job
+								if ($nextAfterLast > $ts - $currSchedule->getCatchUpTimeout()) {
+									$this->dispatchFor($currSchedule, $nextAfterLast);
+									++$dispatchCount;
+								}
 							}
 						}
-					}
 
-					// schedule if we have a new schedule time
-					if ($next > $lastScheduled) {
-						$this->dispatchFor($currSchedule, $next);
-						++$dispatchCount;
+						// schedule if we have a new schedule time
+						if ($next > $lastScheduled) {
+							$this->dispatchFor($currSchedule, $next);
+							++$dispatchCount;
+						}
+
 					}
 
 				}
@@ -166,7 +175,7 @@
 			$now = time();
 
 			/** @var mixed|InteractsWithCron $job */
-			$job = $schedule->getJob();
+			$job = clone $schedule->getJob();
 
 			// pass cron schedule information
 			if (is_object($job) && in_array(InteractsWithCron::class, class_uses_recursive($job))) {

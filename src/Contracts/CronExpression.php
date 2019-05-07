@@ -30,7 +30,7 @@
 		 * Returns the next matching timestamp after the given date
 		 * @param int $ts The timestamp
 		 * @param int $maxTs The maximum timestamp to return
-		 * @return int The next timestamp
+		 * @return null|int The next timestamp
 		 */
 		public function nextAfter(int $ts, int $maxTs): ?int;
 
