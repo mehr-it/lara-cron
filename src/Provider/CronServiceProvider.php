@@ -5,22 +5,16 @@
 
 
 	use Illuminate\Console\Scheduling\Schedule;
+	use Illuminate\Contracts\Support\DeferrableProvider;
 	use Illuminate\Support\ServiceProvider;
 	use MehrIt\LaraCron\Command\CronDispatchCommand;
 	use MehrIt\LaraCron\Contracts\CronManager;
 	use MehrIt\LaraCron\Contracts\CronSchedule;
 	use MehrIt\LaraCron\Validation\CronExpressionValidationRule;
 
-	class CronServiceProvider extends ServiceProvider
+	class CronServiceProvider extends ServiceProvider implements DeferrableProvider
 	{
 		const PACKAGE_NAME = 'cron';
-
-		/**
-		 * Indicates if loading of the provider is deferred.
-		 *
-		 * @var bool
-		 */
-		protected $defer = true;
 
 		/**
 		 * All of the container singletons that should be registered.

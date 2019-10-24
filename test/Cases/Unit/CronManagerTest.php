@@ -248,7 +248,7 @@
 			$createdSchedule = null;
 
 			/** @var CronExpression|MockObject $cronExpression */
-			$cronExpression = $this->getMockBuilder(CronExpression::class)->getMock();
+			$cronExpression = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 
 			$job = $this->getMockBuilder(\MehrIt\LaraCron\Contracts\CronJob::class)->getMock();
 
@@ -290,7 +290,7 @@
 			$createdSchedule = null;
 
 			/** @var CronExpression|MockObject $cronExpression */
-			$cronExpression = $this->getMockBuilder(CronExpression::class)->getMock();
+			$cronExpression = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 
 			$job = $this->getMockBuilder(\MehrIt\LaraCron\Contracts\CronJob::class)->getMock();
 
@@ -485,7 +485,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->exactly(2))
 				->method('nextAfter')
@@ -579,7 +579,7 @@
 
 			$task = new CronManagerTestJob_withoutInteract();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->exactly(2))
 				->method('nextAfter')
@@ -592,12 +592,16 @@
 							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
 						})
 					],
-					$this->callback(function ($v) use ($now) {
-						return $v == $now + 1000;
-					}),
-					$this->callback(function ($v) use ($now) {
-						return $now + 6000 <= $v && $v <= $now + 6000 + 10;
-					})
+					[
+						$this->callback(function ($v) use ($now) {
+							return $v == $now + 1000;
+						})
+					],
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					]
 				)
 				->willReturnOnConsecutiveCalls(
 					$now + 1000,
@@ -669,7 +673,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->exactly(4))
 				->method('nextAfter')
@@ -802,7 +806,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->never())
 				->method('nextAfter');
@@ -869,7 +873,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->once())
 				->method('nextAfter')
@@ -943,7 +947,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->exactly(2))
 				->method('nextAfter')
@@ -1031,7 +1035,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->method('nextAfter')
 				->withConsecutive(
@@ -1125,7 +1129,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				//->expects($this->exactly(3))
 				->method('nextAfter')
@@ -1232,7 +1236,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->exactly(5))
 				->method('nextAfter')
@@ -1335,7 +1339,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->exactly(6))
 				->method('nextAfter')
@@ -1443,7 +1447,7 @@
 
 			$task = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->exactly(6))
 				->method('nextAfter')
@@ -1542,7 +1546,7 @@
 			$task = new CronManagerTestJob();
 			$task2 = new CronManagerTestJob();;
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->exactly(3))
 				->method('nextAfter')
@@ -1587,7 +1591,7 @@
 				->method('getJob')
 				->willReturn($task);
 
-			$expressionMock2 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock2 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock2
 				->expects($this->exactly(3))
 				->method('nextAfter')
@@ -1697,7 +1701,7 @@
 			$task = new CronManagerTestJob();
 			$task2 = new CronManagerTestJob();
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->expects($this->never())
 				->method('nextAfter');
@@ -1719,7 +1723,7 @@
 				->method('getJob')
 				->willReturn($task);
 
-			$expressionMock2 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock2 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock2
 				->expects($this->exactly(2))
 				->method('nextAfter')
@@ -1815,7 +1819,7 @@
 
 			$task = new CronManagerTestJob($cls);
 
-			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 			$expressionMock1
 				->method('nextAfter')
 				->with()

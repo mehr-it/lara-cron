@@ -15,10 +15,10 @@
 		public function testGettersSettersConstructor() {
 
 			/** @var CronExpression|MockObject $exp1 */
-			$exp1 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$exp1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 
 			/** @var CronExpression|MockObject $exp2 */
-			$exp2 = $this->getMockBuilder(CronExpression::class)->getMock();
+			$exp2 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
 
 			$job1 = $this->getMockBuilder(CronJob::class)->getMock();
 
