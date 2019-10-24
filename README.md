@@ -1,4 +1,7 @@
 # LaraCron - dynamic user cron schedules
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/mehr-it/lara-cron.svg?style=flat-square)](https://packagist.org/packages/mehr-it/lara-cron)
+[![Build Status](https://travis-ci.org/mehr-it/lara-cron.svg?branch=master)](https://travis-ci.org/mehr-it/lara-cron)
+
 This package helps to implement user manageable, distributed cron jobs.
 Cron jobs are stored in a database table and are
 executed whenever given cron expression matches.
