@@ -119,3 +119,4 @@ the included `CronExpressionValidationRule`:
 	$rules = [
 		'fieldName' => ['required', new CronExpressionValidationRule()],
 	]
+	
