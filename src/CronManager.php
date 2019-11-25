@@ -139,7 +139,7 @@
 								$nextAfterLast = $currSchedule->getExpression()->nextAfter($nextAfterLast, $maxTs);
 
 								// stop, if reaching the regular next date
-								if ($nextAfterLast >= $next)
+								if ($nextAfterLast === null || $nextAfterLast >= $next)
 									break;
 
 								// if within catchup timeout, we schedule the missed job

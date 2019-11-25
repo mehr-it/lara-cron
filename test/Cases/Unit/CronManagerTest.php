@@ -1256,7 +1256,7 @@
 						})
 					]
 				)
-				->willReturnOnConsecutiveCalls($now + 1000, $now - 150, $now + 1000, null, null); // no catchup is required because next after last is the same as next after current timestamp
+				->willReturnOnConsecutiveCalls($now + 1000, $now - 150, $now + 1000, null, null);
 
 
 			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
@@ -1433,6 +1433,108 @@
 			});
 
 			$this->assertEquals(['a' => 1, 'b' => 1, 'c' => 1], $l);
+		}
+
+		public function testDispatch_oneActive_alreadyDispatched_catchupRequired_nextAfterGreaterMaxTs() {
+
+			config()->set('cron.scheduleLog', 'testing');
+			config()->set('cron.store', 'testing');
+
+			$now = time();
+
+			$lastScheduled = $now - 300;
+
+			$task = new CronManagerTestJob();
+
+			$expressionMock1 = $this->getMockBuilder(CronExpression::class)->disableOriginalConstructor()->getMock();
+			$expressionMock1
+				->expects($this->exactly(5))
+				->method('nextAfter')
+				->withConsecutive(
+					[
+						$this->callback(function ($v) use ($now) {
+							return $now <= $v && $v <= $now + 10;
+						}),
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					],
+					[
+						$now - 300,
+						$this->callback(function ($v) use ($now) {
+							return $now + 6000 <= $v && $v <= $now + 6000 + 10;
+						})
+					]
+				)
+				->willReturnOnConsecutiveCalls($now + 1000, $now - 150, null, null, null);
+
+
+			$scheduleMock1 = $this->getMockBuilder(CronScheduleContract::class)->getMock();
+			$scheduleMock1
+				->method('getExpression')
+				->willReturn($expressionMock1);
+			$scheduleMock1
+				->method('getKey')
+				->willReturn('key1');
+			$scheduleMock1
+				->method('getCatchUpTimeout')
+				->willReturn(500);
+			$scheduleMock1
+				->method('isActive')
+				->willReturn(true);
+			$scheduleMock1
+				->method('getJob')
+				->willReturn($task);
+
+
+			$logMock = $this->getMockBuilder(CronScheduleLog::class)->getMock();
+			$logMock
+				->method('getLastSchedule')
+				->with('key1')
+				->willReturn($lastScheduled);
+
+			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
+			$storeMock
+				->method('all')
+				->with(null)
+				->willReturn(new \ArrayIterator([
+					$scheduleMock1,
+				]));
+
+
+			$manager = new CronManager();
+			$manager->registerScheduleLogDriver('testing', function () use ($logMock) {
+				return $logMock;
+			});
+			$manager->registerStoreDriver('testing', function () use ($storeMock) {
+				return $storeMock;
+			});
+
+
+			Queue::fake();
+
+			$this->assertSame(2, $manager->dispatch(6000));
+
+
+			// catchup job
+			$l = [
+				'a' => 0,
+				'b' => 0,
+			];
+			Queue::assertPushed(CronManagerTestJob::class, function ($job) use ($task, $now, &$l) {
+				return ($job instanceof CronJob &&
+				        $job->getCronScheduleKey() === 'key1' &&
+				        $job->getCronScheduledTs() === $now - 150 &&
+				        $job->delay == 0 && ++$l['a'])
+				       || ($job instanceof CronJob &&
+				           $job->getCronScheduleKey() === 'key1' &&
+				           $job->getCronScheduledTs() === $now + 1000 &&
+				           $job->delay <= 1000 && $job->delay >= 995 && ++$l['b']);
+
+			});
+
+			$this->assertEquals(['a' => 1, 'b' => 1], $l);
+
 		}
 
 
