@@ -7,8 +7,8 @@ Cron jobs are stored in a database table and are
 executed whenever given cron expression matches.
 
 Unlike other cron implementations, this package always uses queuing for dispatching cron
-jobs. The cron jobs are sent to the queue regularly, just a few minutes before they are
-due - but with a delay, so the jobs won't get received until there desired execution time.
+jobs. The cron **jobs are sent to the queue** regularly, just a few minutes before they are
+due - but with a delay, so the jobs won't get received until their desired execution time.
 
 This approach has several advantages:
 * Scheduler down time of a view minutes does not cause miss of cron jobs
@@ -96,7 +96,7 @@ some jobs could overlap others which they usually dont.
 ### DST end (turning clock back from 3:00 to 2:00)
 On DST end, the handling depends on the hour expression
 in the cron field. If a wildcard or a range matching
-the period between 2:00 and 3:00 is given, the cron
+the period between 2:00 and 3:00 is defined, the cron
 jobs are run twice. For lists, increments and single
 values, cron jobs are only run once.
 
