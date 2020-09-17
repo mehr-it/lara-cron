@@ -35,4 +35,14 @@
 			return $this->logEntries[$key] ?? null;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function withScheduleLocked(string $key, callable $callback) {
+
+			// memory schedule lock does not use locking at all
+			return call_user_func($callback);
+		}
+
+
 	}

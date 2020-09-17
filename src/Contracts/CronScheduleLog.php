@@ -20,4 +20,13 @@
 		 * @return int|null The last times the cron was scheduled for. Null if yet not scheduled
 		 */
 		public function getLastSchedule(string $key) : ?int;
+
+
+		/**
+		 * Executes the given callback while locking the given cron schedule
+		 * @param string $key The cron key
+		 * @param callable $callback The callback
+		 * @return mixed The callback return
+		 */
+		public function withScheduleLocked(string $key, callable $callback);
 	}

@@ -66,4 +66,31 @@
 			$this->assertSame($now - 100, $log->getLastSchedule('key2'));
 		}
 
+		public function testWithScheduleLocked() {
+
+			$log = new MemoryScheduleLog();
+
+			$log->log('key1', time() - 10);
+
+
+			$ret = new \stdClass();
+
+			$this->assertSame($ret, $log->withScheduleLocked('key1', function () use ($ret) {
+				return $ret;
+			}));
+
+		}
+
+		public function testWithScheduleLocked_notExisting() {
+
+			$log = new MemoryScheduleLog();
+
+			$ret = new \stdClass();
+
+			$this->assertSame($ret, $log->withScheduleLocked('key1', function () use ($ret) {
+				return $ret;
+			}));
+
+		}
+
 	}

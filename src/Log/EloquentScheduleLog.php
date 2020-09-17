@@ -122,5 +122,20 @@
 			return new $class;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function withScheduleLocked(string $key, callable $callback) {
+
+			// open a transaction so database locks are possible
+			return $this->createModel()->getConnection()->transaction(function() use ($key, $callback) {
+
+				// fetch the record so it gets locked
+				$this->fetchRecord($key, true);
+
+				return call_user_func($callback);
+			});
+
+		}
 
 	}

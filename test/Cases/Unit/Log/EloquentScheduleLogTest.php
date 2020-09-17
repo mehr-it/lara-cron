@@ -100,6 +100,33 @@
 			$this->assertSame($now - 100, $newInstance->getLastSchedule('key2'));
 		}
 
+		public function testWithScheduleLocked() {
+
+			$log = $this->createLog();
+
+			$log->log('key1', time() - 10);
+
+
+			$ret = new \stdClass();
+
+			$this->assertSame($ret, $log->withScheduleLocked('key1', function() use ($ret) {
+				return $ret;
+			}));
+
+		}
+
+		public function testWithScheduleLocked_notExisting() {
+
+			$log = $this->createLog();
+
+			$ret = new \stdClass();
+
+			$this->assertSame($ret, $log->withScheduleLocked('key1', function() use ($ret) {
+				return $ret;
+			}));
+
+		}
+
 	}
 
 	class EloquentScheduleLogTestModel extends Model {

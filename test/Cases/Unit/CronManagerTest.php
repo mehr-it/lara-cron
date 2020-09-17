@@ -535,6 +535,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -632,6 +637,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -735,6 +745,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -835,6 +850,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -910,6 +930,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -997,6 +1022,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1084,6 +1114,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1192,6 +1227,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1282,6 +1322,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1385,6 +1430,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1492,6 +1542,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1595,6 +1650,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1749,6 +1809,11 @@
 					$lastScheduled,
 					$now + 2000
 				);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1870,6 +1935,11 @@
 				->method('getLastSchedule')
 				->withConsecutive(['key2'])
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock
@@ -1950,6 +2020,11 @@
 				->method('getLastSchedule')
 				->with('key1')
 				->willReturn($lastScheduled);
+			$logMock
+				->method('withScheduleLocked')
+				->willReturnCallback(function ($key, $callback) {
+					return call_user_func($callback);
+				});
 
 			$storeMock = $this->getMockBuilder(CronStore::class)->getMock();
 			$storeMock

@@ -117,48 +117,51 @@
 
 			foreach($this->getStore()->all() as $currSchedule) {
 
-				if ($currSchedule->isActive()) {
+				$scheduleLog->withScheduleLocked($currSchedule->getKey(), function() use ($currSchedule, $scheduleLog, $ts, $maxTs, &$dispatchCount) {
 
-					$next = $ts;
-					$last = null;
+					if ($currSchedule->isActive()) {
 
-					while ($next && $next !== $last) {
+						$next = $ts;
+						$last = null;
 
-						$lastScheduled = $scheduleLog->getLastSchedule($currSchedule->getKey());
+						while ($next && $next !== $last) {
 
-						$last = $next;
-						$next = $currSchedule->getExpression()->nextAfter($last, $maxTs);
+							$lastScheduled = $scheduleLog->getLastSchedule($currSchedule->getKey());
 
-						// check if we missed a scheduled job and therefore need to catchup
-						if ($lastScheduled !== null && $currSchedule->getCatchUpTimeout() > 0) {
+							$last = $next;
+							$next = $currSchedule->getExpression()->nextAfter($last, $maxTs);
 
-							$nextAfterLast = $lastScheduled;
-							while (true) {
+							// check if we missed a scheduled job and therefore need to catchup
+							if ($lastScheduled !== null && $currSchedule->getCatchUpTimeout() > 0) {
 
-								// calculate next desired execution time
-								$nextAfterLast = $currSchedule->getExpression()->nextAfter($nextAfterLast, $maxTs);
+								$nextAfterLast = $lastScheduled;
+								while (true) {
 
-								// stop, if reaching the regular next date
-								if ($nextAfterLast === null || $nextAfterLast >= $next)
-									break;
+									// calculate next desired execution time
+									$nextAfterLast = $currSchedule->getExpression()->nextAfter($nextAfterLast, $maxTs);
 
-								// if within catchup timeout, we schedule the missed job
-								if ($nextAfterLast > $ts - $currSchedule->getCatchUpTimeout()) {
-									$this->dispatchFor($currSchedule, $nextAfterLast);
-									++$dispatchCount;
+									// stop, if reaching the regular next date
+									if ($nextAfterLast === null || $nextAfterLast >= $next)
+										break;
+
+									// if within catchup timeout, we schedule the missed job
+									if ($nextAfterLast > $ts - $currSchedule->getCatchUpTimeout()) {
+										$this->dispatchFor($currSchedule, $nextAfterLast);
+										++$dispatchCount;
+									}
 								}
 							}
-						}
 
-						// schedule if we have a new schedule time
-						if ($next > $lastScheduled) {
-							$this->dispatchFor($currSchedule, $next);
-							++$dispatchCount;
+							// schedule if we have a new schedule time
+							if ($next > $lastScheduled) {
+								$this->dispatchFor($currSchedule, $next);
+								++$dispatchCount;
+							}
+
 						}
 
 					}
-
-				}
+				});
 
 			}
 
