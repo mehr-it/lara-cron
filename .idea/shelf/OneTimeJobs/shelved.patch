@@ -1,0 +1,417 @@
+Index: src/Store/EloquentStore.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\n\n\tnamespace MehrIt\\LaraCron\\Store;\n\n\n\tuse DateTimeZone;\n\tuse Exception;\n\tuse Illuminate\\Database\\Eloquent\\Model;\n\tuse MehrIt\\LaraCron\\Contracts\\CronSchedule;\n\tuse MehrIt\\LaraCron\\Contracts\\CronStore;\n\tuse MehrIt\\LaraCron\\Cron\\CronExpression;\n\tuse MehrIt\\LaraCron\\CronSchedule as CronScheduleObject;\n\tuse RuntimeException;\n\tuse Traversable;\n\n\t/**\n\t * Stores cron schedules using eloquent models\n\t * @package MehrIt\\LaraDynamicSchedules\\Store\n\t */\n\tclass EloquentStore implements CronStore\n\t{\n\t\t/**\n\t\t * @var string\n\t\t */\n\t\tprotected $model;\n\n\t\t/**\n\t\t * Creates a new instance\n\t\t * @param string $model The model class\n\t\t */\n\t\tpublic function __construct(string $model) {\n\t\t\t$this->model = $model;\n\t\t}\n\n\t\t/**\n\t\t * Gets the model class\n\t\t * @return string The model class\n\t\t */\n\t\tpublic function getModel(): string {\n\t\t\treturn $this->model;\n\t\t}\n\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function get(string $key): ?CronSchedule {\n\t\t\treturn $this->scheduleFromRecord($this->fetchRecord($key));\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function all(string $group = null): Traversable {\n\n\t\t\t$query = $this->createModel()->newQuery();\n\n\t\t\t// filter by group if passed\n\t\t\tif ($group !== null)\n\t\t\t\t$query->where('group', $group);\n\n\t\t\tforeach($query->cursor() as $currRecord) {\n\n\t\t\t\tyield $this->scheduleFromRecord($currRecord);\n\t\t\t}\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function put(CronSchedule $schedule): CronStore {\n\t\t\t$record = $this->recordFromSchedule($schedule, $this->fetchRecord($schedule->getKey()));\n\n\t\t\t$record->save();\n\n\t\t\treturn $this;\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function delete(string $key): CronStore {\n\t\t\t// delete schedules\n\t\t\t$this->createModel()->newQuery()->where('key', $key)->delete();\n\n\t\t\treturn $this;\n\t\t}\n\n\t\t/**\n\t\t * Creates a schedule from the given record\n\t\t * @param Model|null $record The record or null\n\t\t * @return CronSchedule|null The schedule or null\n\t\t */\n\t\tprotected function scheduleFromRecord(?Model $record) : ?CronSchedule {\n\t\t\t// return null if not existing\n\t\t\tif (!$record)\n\t\t\t\treturn null;\n\n\t\t\t// create timezone\n\t\t\ttry {\n\t\t\t\t$timezone = new DateTimeZone($record->timezone ?: date_default_timezone_get());\n\t\t\t}\n\t\t\tcatch (Exception $ex) {\n\t\t\t\tthrow new RuntimeException(\"Unknown timezone \\\"{$record->timezone}\\\" for cron schedule {$record->key}.\");\n\t\t\t}\n\n\t\t\t// unserialize job\n\t\t\t$job = unserialize($record->job);\n\n\t\t\treturn new CronScheduleObject(\n\t\t\t\tnew CronExpression($record->expression, $timezone),\n\t\t\t\t$job,\n\t\t\t\t$record->key,\n\t\t\t\t$record->group,\n\t\t\t\t$record->active,\n\t\t\t\t$record->catchup_timeout\n\t\t\t);\n\t\t}\n\n\t\t/**\n\t\t * Creates or updates a record with given schedule data\n\t\t * @param CronSchedule $schedule The schedule\n\t\t * @param Model|null $existingRecord The record to update if any. Else a new record is created\n\t\t * @return Model The record\n\t\t */\n\t\tprotected function recordFromSchedule(CronSchedule $schedule, Model $existingRecord = null) {\n\n\n\t\t\t$record = $existingRecord ?: $this->createModel();\n\n\t\t\t$cronExpression = $schedule->getExpression();\n\n\t\t\t$record->key = $schedule->getKey();\n\t\t\t$record->group = $schedule->getGroup();\n\t\t\t$record->timezone = $cronExpression->getTimezone()->getName();\n\t\t\t$record->expression = $cronExpression->getExpression();\n\t\t\t$record->active = $schedule->isActive();\n\t\t\t$record->catchup_timeout = $schedule->getCatchUpTimeout();\n\t\t\t$record->job = serialize(clone $schedule->getJob());\n\n\t\t\treturn $record;\n\n\t\t}\n\n\t\t/**\n\t\t * Fetches the record for the given schedule key\n\t\t * @param string $key The schedule key\n\t\t * @return Model|null The record or null if not existing\n\t\t */\n\t\tprotected function fetchRecord(string $key) : ?Model {\n\t\t\treturn $this->createModel()->newQuery()\n\t\t\t\t->where('key', $key)\n\t\t\t\t->first();\n\t\t}\n\n\t\t/**\n\t\t * Create a new instance of the model.\n\t\t *\n\t\t * @return \\Illuminate\\Database\\Eloquent\\Model\n\t\t */\n\t\tprotected function createModel() {\n\t\t\t$class = '\\\\' . ltrim($this->model, '\\\\');\n\n\t\t\treturn new $class;\n\t\t}\n\n\n\t}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/Store/EloquentStore.php	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ src/Store/EloquentStore.php	(date 1559682641000)
+@@ -52,7 +52,7 @@
+ 		/**
+ 		 * @inheritDoc
+ 		 */
+-		public function all(string $group = null): Traversable {
++		public function recurring(string $group = null): Traversable {
+ 
+ 			$query = $this->createModel()->newQuery();
+ 
+Index: src/Contracts/CronStore.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\n\n\tnamespace MehrIt\\LaraCron\\Contracts;\n\n\n\tinterface CronStore\n\t{\n\n\t\t/**\n\t\t * Gets the cron schedule with given key\n\t\t * @param string $key The key\n\t\t * @return CronSchedule|null The schedule or null if not found\n\t\t */\n\t\tpublic function get(string $key) : ?CronSchedule;\n\n\t\t/**\n\t\t * Lists all schedules\n\t\t * @param string|null $group If set, only schedules of the given group are returned\n\t\t * @return CronSchedule[]|\\Traversable The schedules\n\t\t */\n\t\tpublic function all(string $group = null) : \\Traversable;\n\n\t\t/**\n\t\t * Puts the given cron schedule to store. If schedule key already exists, it is overridden.\n\t\t * @param CronSchedule $schedule The schedule\n\t\t * @return CronStore This instance\n\t\t */\n\t\tpublic function put(CronSchedule $schedule) : self;\n\n\t\t/**\n\t\t * Deletes the cron schedule with the given key\n\t\t * @param string $key The key\n\t\t * @return CronStore This instance\n\t\t */\n\t\tpublic function delete(string $key) :self;\n\n\t}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/Contracts/CronStore.php	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ src/Contracts/CronStore.php	(date 1559683846000)
+@@ -19,7 +19,14 @@
+ 		 * @param string|null $group If set, only schedules of the given group are returned
+ 		 * @return CronSchedule[]|\Traversable The schedules
+ 		 */
+-		public function all(string $group = null) : \Traversable;
++		public function recurring(string $group = null) : \Traversable;
++
++		/**
++		 * Lists all one time schedules before or equal to maxTs
++		 * @param int $maxTs The maximum timestamp for one time schedules to return
++		 * @return CronSchedule[]|\Traversable The one time schedules
++		 */
++		public function oneTime(int $maxTs) : \Traversable;
+ 
+ 		/**
+ 		 * Puts the given cron schedule to store. If schedule key already exists, it is overridden.
+Index: README.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># LaraCron - dynamic user cron schedules\nThis package helps to implement user manageable, distributed cron jobs.\nCron jobs are stored in a database table and are\nexecuted whenever given cron expression matches.\n\nUnlike other cron implementations, this package always uses queuing for dispatching cron\njobs. The cron jobs are sent to the queue regularly, just a few minutes before they are\ndue - but with a delay, so the jobs won't get received until there desired execution time.\n\nThis approach has several advantages:\n* Scheduler down time of a view minutes does not cause miss of cron jobs\n* Cron jobs can be caught up if missed\n* Cron job execution can be distributed over many machines\n* You may execute the cron scheduler on multiple machines without to care for duplicate\n  cron job dispatches, because duplicate prevention is already built-in\n\n## Usage\n\nCreating cron schedules is very easy:\n\n\t$cron = new CronExpression('*/15 * * * *', 'Europe/Berlin');\n\t\n\tCron::schedule($cron, $job);\n\t\n\tCron::schedule($cron, $job, 'myJob', 'jobGroup');\n\t\nTo update an existing schedule, simply call `schedule()` with\nsame key parameter again.\n\nTo delete a cron schedule, simply call the `delete()` method:\n\n\tCron::delete('myJob');\n\t\nYou can also list all cron schedules, optionally filtered\nby group name:\n\n\tCron::describeAll();\n\t\n\tCron::describeAll('myGroup'); \t\n\n## Invoking the scheduler\n\nThe cron scheduler dispatches all upcoming cron jobs to\nqueue. By default it is invoked by Laravel's Scheduler\nevery five minutes and dispatches cron jobs due within \nnext 10 minutes.\n\nYou can disable this behavior by setting:\n\n\t// config/cron.php\n\n\t'dispatch_schedule' => false,\n\nThen you have to invoke `artisan cron:dispatch 600` \nmanually. The `600` specifies the period (in seconds)\nfor which to dispatch the cron jobs for. This value \nshould always be larger than the timespan between these\ndispatcher calls.\n\n## Catchup of missed cron jobs\n\nSystems fail. Even cron schedulers. Or systems running the\nscheduler may be down for some time. Therefore you may\nspecify a catchup timeout for your cron jobs as last \nparameter.\n\nCron::schedule($cron, $job, 'my-job', null, true, 300);\n\nThe dispatcher will do some catching up for jobs that were\ndue within that period but have not been scheduled yet.\n\n## DST handling\n\nDST (daylight saving time) and cron expressions can be\nvery tricky and different cron implementations may \nbehave differently.\n\nThe problem which has to be solved are the skipping of \none clock hour at DST start and repeating a clock hour on\nDST end. Without any special handling, cron jobs might\nnot run at all or being invoked double.\n\nFollowing describes how this package handles DST clock\nchanges.\n\n### DST start (turning clock from 2:00 to 3:00)\nOn DST start, cron jobs scheduled between 2:00 and 2:59\nsimply start between 3:00 and 3:59.\n\nThis way no cron is missed, but you should beware that\nsome jobs could overlap others which they usually dont.\n\n### DST end (turning clock back from 3:00 to 2:00)\nOn DST end, the handling depends on the hour expression\nin the cron field. If a wildcard or a range matching\nthe period between 2:00 and 3:00 is given, the cron\njobs are run twice. For lists, increments and single\nvalues, cron jobs are only run once.\n\nFollowing table shows which expressions would cause\nrepeating and which not:\n\n\n| repeated\t\t\t  | not repeated       |\n|---------------------|--------------------|\n| `0 * * * *`\t      | `0 2 * * *`          |\n| `30 * * * *`\t      | `30 2 * * *`         |\n| `0 2-3 * * *`\t\t  | `0 2,3 * * *`        |\n| `0 1-4 * * *`\t\t  | `0 0-2 * * *`        |\n|           \t\t  | `*/5 2 * * *`        |\n|           \t\t  | `5 2-12/2 * * *`     |\n\n\n## User input validation\n\nTo validate cron expressions input by users, you may use\nthe included `CronExpressionValidationRule`:\n\n\t$rules = [\n\t\t'fieldName' => ['required', new CronExpressionValidationRule()],\n\t]
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- README.md	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ README.md	(date 1559685781000)
+@@ -8,7 +8,7 @@
+ due - but with a delay, so the jobs won't get received until there desired execution time.
+ 
+ This approach has several advantages:
+-* Scheduler down time of a view minutes does not cause miss of cron jobs
++* Scheduler down time of a few minutes does not cause miss of cron jobs
+ * Cron jobs can be caught up if missed
+ * Cron job execution can be distributed over many machines
+ * You may execute the cron scheduler on multiple machines without to care for duplicate
+Index: src/Contracts/CronManager.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\n\n\tnamespace MehrIt\\LaraCron\\Contracts;\n\n\n\tuse Traversable;\n\n\tinterface CronManager\n\t{\n\n\t\t/**\n\t\t * Schedules the given cron job\n\t\t * @param CronExpression $cronExpression The cron expression which determines the execution time\n\t\t * @param CronJob $job The task/job to run\n\t\t * @param string|null $key The key identifying the schedule. If omitted random key will be generated\n\t\t * @param string|null $group The schedule group. This allows to describe all schedules by a given group\n\t\t * @param bool $active True if the schedule should be marked as active\n\t\t * @param int $catchUpTimeout The number of seconds, the missed jobs should be caught up\n\t\t * @return CronSchedule The created schedule\n\t\t */\n\t\tpublic function schedule(CronExpression $cronExpression, CronJob $job, string $key = null, string $group = null, $active = true, int $catchUpTimeout = 0) : CronSchedule;\n\n\t\t/**\n\t\t * Describes all schedules\n\t\t * @param string|null $group If set, only schedules of the given group are returned\n\t\t * @return CronSchedule[]|Traversable The schedules\n\t\t */\n\t\tpublic function describeAll(string $group = null) : Traversable ;\n\n\t\t/**\n\t\t * Describes the schedule with the given key\n\t\t * @param string $key The key\n\t\t * @return CronSchedule|null The schedule or null of not existing\n\t\t */\n\t\tpublic function describe(string $key) :?CronSchedule;\n\n\t\t/**\n\t\t * Deletes the given schedule\n\t\t * @param string $key The schedule's key\n\t\t * @return CronManager This instance\n\t\t */\n\t\tpublic function delete(string $key) : self;\n\n\t\t/**\n\t\t * Returns the last time a job was scheduled for\n\t\t * @param string $key The schedule's key\n\t\t * @return int|null The last scheduled time or null if yet not scheduled\n\t\t */\n\t\tpublic function lastScheduled(string $key) : ?int;\n\n\n\t\t/**\n\t\t * Dispatches all cron jobs to be run within the given period from now on\n\t\t * @param int $period The period in seconds\n\t\t * @return int The number of jobs dispatched\n\t\t */\n\t\tpublic function dispatch(int $period) : int;\n\n\t}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/Contracts/CronManager.php	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ src/Contracts/CronManager.php	(date 1559684922000)
+@@ -21,6 +21,16 @@
+ 		 */
+ 		public function schedule(CronExpression $cronExpression, CronJob $job, string $key = null, string $group = null, $active = true, int $catchUpTimeout = 0) : CronSchedule;
+ 
++		/**
++		 * Schedules a one-time job
++		 * @param \DateTimeInterface|int $timestamp The time when to run the job
++		 * @param CronJob $job The task/job to run
++		 * @param string|null $key The key identifying the schedule. If omitted random key will be generated
++		 * @param bool $active True if the schedule should be marked as active
++		 * @return CronSchedule The created schedule
++		 */
++		public function scheduleOnce($timestamp, CronJob $job, string $key = null, $active = true): CronSchedule;
++
+ 		/**
+ 		 * Describes all schedules
+ 		 * @param string|null $group If set, only schedules of the given group are returned
+Index: src/Contracts/CronExpression.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\t/**\n\t * Created by PhpStorm.\n\t * User: chris\n\t * Date: 29.03.19\n\t * Time: 10:42\n\t */\n\n\tnamespace MehrIt\\LaraCron\\Contracts;\n\n\tuse DateTimeZone;\n\n\tinterface CronExpression\n\t{\n\t\t/**\n\t\t * Creates a new instance\n\t\t * @param string $expression The cron expression\n\t\t * @param string|DateTimeZone $timezone The timezone to interpret the expression\n\t\t */\n\t\tpublic function __construct(string $expression, $timezone);\n\n\t\t/**\n\t\t * Returns if the cron expression matches the timestamp\n\t\t * @param int $ts The timestamp\n\t\t * @return bool True if matching. Else false.\n\t\t */\n\t\tpublic function matches(int $ts): bool;\n\n\t\t/**\n\t\t * Returns the next matching timestamp after the given date\n\t\t * @param int $ts The timestamp\n\t\t * @param int $maxTs The maximum timestamp to return\n\t\t * @return null|int The next timestamp\n\t\t */\n\t\tpublic function nextAfter(int $ts, int $maxTs): ?int;\n\n\n\t\t/**\n\t\t * Gets the underlying expression string\n\t\t * @return string The underlying expression string\n\t\t */\n\t\tpublic function getExpression() : string;\n\n\t\t/**\n\t\t * Gets the timezone the expression has to be interpreted in\n\t\t * @return DateTimeZone The timezone\n\t\t */\n\t\tpublic function getTimezone() : DateTimeZone;\n\t}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/Contracts/CronExpression.php	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ src/Contracts/CronExpression.php	(date 1559682822000)
+@@ -34,6 +34,11 @@
+ 		 */
+ 		public function nextAfter(int $ts, int $maxTs): ?int;
+ 
++		/**
++		 * Returns if the expression matches only one time
++		 * @return bool
++		 */
++		public function isOneTime() : bool;
+ 
+ 		/**
+ 		 * Gets the underlying expression string
+Index: test/Cases/Unit/Store/EloquentStoreTest.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\n\n\tnamespace MehrItLaraCronTest\\Cases\\Unit\\Store;\n\n\n\tuse Illuminate\\Bus\\Queueable;\n\tuse Illuminate\\Database\\Eloquent\\Model;\n\tuse Illuminate\\Foundation\\Testing\\DatabaseTransactions;\n\tuse MehrIt\\LaraCron\\Contracts\\CronJob;\n\tuse MehrIt\\LaraCron\\Contracts\\CronSchedule;\n\tuse MehrIt\\LaraCron\\Cron\\CronExpression;\n\tuse MehrIt\\LaraCron\\Queue\\InteractsWithCron;\n\tuse MehrIt\\LaraCron\\Store\\CronTabEntry;\n\tuse MehrIt\\LaraCron\\Store\\EloquentStore;\n\tuse MehrItLaraCronTest\\Cases\\Unit\\TestCase;\n\n\tclass EloquentStoreTest extends TestCase\n\t{\n\t\tuse DatabaseTransactions;\n\n\n\t\tprotected function assertScheduleEquals(CronSchedule $a, CronSchedule $b) {\n\n\t\t\tif (!(\n\t\t\t\t$a->getKey() == $b->getKey() &&\n\t\t\t\t$a->getGroup() == $b->getGroup() &&\n\t\t\t\t$a->isActive() == $b->isActive() &&\n\t\t\t\t$a->getJob() == $b->getJob() &&\n\t\t\t\t$a->getCatchUpTimeout() == $b->getCatchUpTimeout() &&\n\t\t\t\t$a->getExpression()->getExpression() == $b->getExpression()->getExpression() &&\n\t\t\t\t$a->getExpression()->getTimezone()->getName() == $b->getExpression()->getTimezone()->getName()\n\t\t\t)) {\n\t\t\t\t$this->fail('Failed asserting two schedules are equal');\n\t\t\t}\n\n\t\t}\n\n\t\tprotected function createStore() {\n\t\t\treturn new EloquentStore(CronTabEntry::class);\n\t\t}\n\n\t\tpublic function testGetModel() {\n\n\t\t\t$store = new EloquentStore(EloquentStoreTestModel::class);\n\n\t\t\t$this->assertSame(EloquentStoreTestModel::class, $store->getModel());\n\t\t}\n\n\n\t\tpublic function testGet_notExisting() {\n\t\t\t$store = $this->createStore();\n\n\t\t\t$store->put(new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key1'\n\t\t\t));\n\n\t\t\t$this->assertNull($store->get('key2'));\n\t\t}\n\n\t\tpublic function testGetPut() {\n\t\t\t$store = $this->createStore();\n\n\t\t\t$schedule1 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key1'\n\t\t\t);\n\t\t\t$schedule2 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key2',\n\t\t\t\t'my-group',\n\t\t\t\tfalse,\n\t\t\t\t15 * 60\n\t\t\t);\n\n\t\t\t$this->assertSame($store, $store->put($schedule1));\n\t\t\t$this->assertSame($store, $store->put($schedule2));\n\n\t\t\t$this->assertScheduleEquals($schedule2, $store->get('key2'));\n\t\t\t$this->assertScheduleEquals($schedule1, $store->get('key1'));\n\n\n\t\t\t// we also test with different store instance\n\t\t\t$newStoreInstance = $this->createStore();\n\t\t\t$this->assertScheduleEquals($schedule2, $newStoreInstance->get('key2'));\n\t\t\t$this->assertScheduleEquals($schedule1, $newStoreInstance->get('key1'));\n\t\t}\n\n\t\tpublic function testPut_overwrite() {\n\t\t\t$store = $this->createStore();\n\n\t\t\t$schedule1 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key1'\n\t\t\t);\n\t\t\t$schedule2 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key1',\n\t\t\t\t'my-group',\n\t\t\t\tfalse,\n\t\t\t\t15 * 60\n\t\t\t);\n\n\t\t\t$this->assertSame($store, $store->put($schedule1));\n\t\t\t$this->assertSame($store, $store->put($schedule2));\n\n\t\t\t$this->assertScheduleEquals($schedule2, $store->get('key1'));\n\n\n\t\t\t// we also test with different store instance\n\t\t\t$newStoreInstance = $this->createStore();\n\t\t\t$this->assertScheduleEquals($schedule2, $newStoreInstance->get('key1'));\n\t\t}\n\n\n\t\tpublic function testAll() {\n\t\t\t$store = $this->createStore();\n\n\t\t\t$schedule1 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key1'\n\t\t\t);\n\t\t\t$schedule2 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key2',\n\t\t\t\t'my-group',\n\t\t\t\tfalse,\n\t\t\t\t15 * 60\n\t\t\t);\n\n\t\t\t$this->assertSame($store, $store->put($schedule1));\n\t\t\t$this->assertSame($store, $store->put($schedule2));\n\n\t\t\t$ret = iterator_to_array($store->all());\n\n\t\t\tusort($ret, function(CronSchedule $a, CronSchedule $b) {\n\t\t\t\treturn $a->getKey() <=> $b->getKey();\n\t\t\t});\n\n\t\t\t$this->assertScheduleEquals($schedule1, $ret[0]);\n\t\t\t$this->assertScheduleEquals($schedule2, $ret[1]);\n\n\n\n\t\t\t// we also test with different store instance\n\t\t\t$newStoreInstance = $this->createStore();\n\t\t\t$ret = iterator_to_array($newStoreInstance->all());\n\t\t\tusort($ret, function (CronSchedule $a, CronSchedule $b) {\n\t\t\t\treturn $a->getKey() <=> $b->getKey();\n\t\t\t});\n\t\t\t$this->assertScheduleEquals($schedule1, $ret[0]);\n\t\t\t$this->assertScheduleEquals($schedule2, $ret[1]);\n\t\t}\n\n\t\tpublic function testAll_withGroupFilter() {\n\t\t\t$store = $this->createStore();\n\n\t\t\t$schedule1 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key1',\n\t\t\t\t'group1'\n\t\t\t);\n\t\t\t$schedule2 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key2'\n\t\t\t);\n\n\t\t\t$schedule3 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key3',\n\t\t\t\t'group1',\n\t\t\t\tfalse,\n\t\t\t\t15 * 60\n\t\t\t);\n\n\t\t\t$this->assertSame($store, $store->put($schedule1));\n\t\t\t$this->assertSame($store, $store->put($schedule2));\n\t\t\t$this->assertSame($store, $store->put($schedule3));\n\n\n\t\t\t// without group\n\t\t\t$ret = iterator_to_array($store->all());\n\n\t\t\tusort($ret, function (CronSchedule $a, CronSchedule $b) {\n\t\t\t\treturn $a->getKey() <=> $b->getKey();\n\t\t\t});\n\n\t\t\t$this->assertScheduleEquals($schedule1, $ret[0]);\n\t\t\t$this->assertScheduleEquals($schedule2, $ret[1]);\n\t\t\t$this->assertScheduleEquals($schedule3, $ret[2]);\n\t\t\t$this->assertCount(3, $ret);\n\n\n\t\t\t// with group\n\t\t\t$ret = iterator_to_array($store->all('group1'));\n\n\t\t\tusort($ret, function(CronSchedule $a, CronSchedule $b) {\n\t\t\t\treturn $a->getKey() <=> $b->getKey();\n\t\t\t});\n\n\t\t\t$this->assertScheduleEquals($schedule1, $ret[0]);\n\t\t\t$this->assertScheduleEquals($schedule3, $ret[1]);\n\t\t\t$this->assertCount(2, $ret);\n\n\n\n\t\t\t// we also test with different store instance\n\t\t\t$newStoreInstance = $this->createStore();\n\t\t\t$ret = iterator_to_array($newStoreInstance->all('group1'));\n\t\t\tusort($ret, function (CronSchedule $a, CronSchedule $b) {\n\t\t\t\treturn $a->getKey() <=> $b->getKey();\n\t\t\t});\n\t\t\t$this->assertScheduleEquals($schedule1, $ret[0]);\n\t\t\t$this->assertScheduleEquals($schedule3, $ret[1]);\n\t\t\t$this->assertCount(2, $ret);\n\t\t}\n\n\t\tpublic function testAll_empty() {\n\t\t\t$store = $this->createStore();\n\n\t\t\t$ret = iterator_to_array($store->all());\n\n\t\t\t$this->assertEmpty($ret);\n\t\t}\n\n\t\tpublic function testDelete() {\n\t\t\t$store = $this->createStore();\n\n\t\t\t$schedule1 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key1'\n\t\t\t);\n\t\t\t$schedule2 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key2'\n\t\t\t);\n\n\t\t\t$this->assertSame($store, $store->put($schedule1));\n\t\t\t$this->assertSame($store, $store->put($schedule2));\n\n\t\t\t$this->assertScheduleEquals($schedule2, $store->get('key2'));\n\t\t\t$this->assertScheduleEquals($schedule1, $store->get('key1'));\n\n\t\t\t$this->assertSame($store, $store->delete('key1'));\n\n\t\t\t$this->assertSame(null, $store->get('key1'));\n\t\t\t$this->assertScheduleEquals($schedule2, $store->get('key2'));\n\n\n\t\t\t// we also test with different store instance\n\t\t\t$newStoreInstance = $this->createStore();\n\t\t\t$this->assertSame(null, $newStoreInstance->get('key1'));\n\t\t\t$this->assertScheduleEquals($schedule2, $newStoreInstance->get('key2'));\n\t\t}\n\n\n\t\tpublic function testDelete_notExisting() {\n\t\t\t$store = $this->createStore();\n\n\t\t\t$schedule1 = new \\MehrIt\\LaraCron\\CronSchedule(\n\t\t\t\tnew CronExpression('* * * * *', $this->timezone),\n\t\t\t\tnew EloquentStoreTestJob(17),\n\t\t\t\t'key1'\n\t\t\t);\n\n\n\t\t\t$this->assertSame($store, $store->put($schedule1));\n\n\t\t\t$this->assertScheduleEquals($schedule1, $store->get('key1'));\n\n\t\t\t$this->assertSame($store, $store->delete('key2'));\n\n\t\t\t$this->assertScheduleEquals($schedule1, $store->get('key1'));\n\n\n\t\t\t// we also test with different store instance\n\t\t\t$newStoreInstance = $this->createStore();\n\t\t\t$this->assertScheduleEquals($schedule1, $newStoreInstance->get('key1'));\n\t\t}\n\n\t}\n\n\n\tclass EloquentStoreTestModel extends Model {\n\n\t}\n\n\tclass EloquentStoreTestJob implements CronJob\n\t{\n\n\t\tuse InteractsWithCron;\n\t\tuse Queueable;\n\n\t\tpublic static $lastResult = null;\n\n\n\t\tprotected $res;\n\n\t\t/**\n\t\t * TestTask constructor.\n\t\t * @param $res\n\t\t */\n\t\tpublic function __construct($res = null) {\n\t\t\t$this->res = $res;\n\t\t}\n\n\t\tpublic function handle() {\n\t\t\tstatic::$lastResult = $this->res;\n\t\t}\n\n\n\t}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- test/Cases/Unit/Store/EloquentStoreTest.php	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ test/Cases/Unit/Store/EloquentStoreTest.php	(date 1559682641000)
+@@ -139,7 +139,7 @@
+ 			$this->assertSame($store, $store->put($schedule1));
+ 			$this->assertSame($store, $store->put($schedule2));
+ 
+-			$ret = iterator_to_array($store->all());
++			$ret = iterator_to_array($store->recurring());
+ 
+ 			usort($ret, function(CronSchedule $a, CronSchedule $b) {
+ 				return $a->getKey() <=> $b->getKey();
+@@ -152,7 +152,7 @@
+ 
+ 			// we also test with different store instance
+ 			$newStoreInstance = $this->createStore();
+-			$ret = iterator_to_array($newStoreInstance->all());
++			$ret = iterator_to_array($newStoreInstance->recurring());
+ 			usort($ret, function (CronSchedule $a, CronSchedule $b) {
+ 				return $a->getKey() <=> $b->getKey();
+ 			});
+@@ -190,7 +190,7 @@
+ 
+ 
+ 			// without group
+-			$ret = iterator_to_array($store->all());
++			$ret = iterator_to_array($store->recurring());
+ 
+ 			usort($ret, function (CronSchedule $a, CronSchedule $b) {
+ 				return $a->getKey() <=> $b->getKey();
+@@ -203,7 +203,7 @@
+ 
+ 
+ 			// with group
+-			$ret = iterator_to_array($store->all('group1'));
++			$ret = iterator_to_array($store->recurring('group1'));
+ 
+ 			usort($ret, function(CronSchedule $a, CronSchedule $b) {
+ 				return $a->getKey() <=> $b->getKey();
+@@ -217,7 +217,7 @@
+ 
+ 			// we also test with different store instance
+ 			$newStoreInstance = $this->createStore();
+-			$ret = iterator_to_array($newStoreInstance->all('group1'));
++			$ret = iterator_to_array($newStoreInstance->recurring('group1'));
+ 			usort($ret, function (CronSchedule $a, CronSchedule $b) {
+ 				return $a->getKey() <=> $b->getKey();
+ 			});
+@@ -229,7 +229,7 @@
+ 		public function testAll_empty() {
+ 			$store = $this->createStore();
+ 
+-			$ret = iterator_to_array($store->all());
++			$ret = iterator_to_array($store->recurring());
+ 
+ 			$this->assertEmpty($ret);
+ 		}
+Index: src/Store/MemoryStore.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\n\n\tnamespace MehrIt\\LaraCron\\Store;\n\n\n\tuse MehrIt\\LaraCron\\Contracts\\CronSchedule;\n\tuse MehrIt\\LaraCron\\Contracts\\CronStore;\n\n\t/**\n\t * Stores cron schedules in memory. Only useful for testing\n\t * @package MehrIt\\LaraDynamicSchedules\\Store\n\t */\n\tclass MemoryStore implements CronStore\n\t{\n\t\t/**\n\t\t * @var CronSchedule[]\n\t\t */\n\t\tprotected $schedules = [];\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function get(string $key): ?CronSchedule {\n\t\t\treturn $this->schedules[$key] ?? null;\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function all(string $group = null): \\Traversable {\n\n\t\t\tforeach($this->schedules as $curr) {\n\t\t\t\tif ($group === null || $curr->getGroup() == $group)\n\t\t\t\t\tyield $curr;\n\t\t\t}\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function put(CronSchedule $schedule): CronStore {\n\t\t\tif (!$schedule->getKey())\n\t\t\t\tthrow new \\InvalidArgumentException('Missing key for schedule');\n\n\t\t\t$this->schedules[$schedule->getKey()] = $schedule;\n\n\t\t\treturn $this;\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function delete(string $key): CronStore {\n\n\t\t\tif ($this->schedules[$key] ?? null)\n\t\t\t\tunset($this->schedules[$key]);\n\n\t\t\treturn $this;\n\n\t\t}\n\n\n\t}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/Store/MemoryStore.php	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ src/Store/MemoryStore.php	(date 1559682641000)
+@@ -28,7 +28,7 @@
+ 		/**
+ 		 * @inheritDoc
+ 		 */
+-		public function all(string $group = null): \Traversable {
++		public function recurring(string $group = null): \Traversable {
+ 
+ 			foreach($this->schedules as $curr) {
+ 				if ($group === null || $curr->getGroup() == $group)
+Index: test/Cases/Unit/Store/MemoryStoreTest.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\n\n\tnamespace MehrItLaraCronTest\\Cases\\Unit\\Store;\n\n\n\tuse MehrIt\\LaraCron\\Contracts\\CronSchedule;\n\tuse MehrIt\\LaraCron\\Store\\MemoryStore;\n\tuse MehrItLaraCronTest\\Cases\\Unit\\TestCase;\n\tuse PHPUnit\\Framework\\MockObject\\MockObject;\n\n\tclass MemoryStoreTest extends TestCase\n\t{\n\n\t\tpublic function testGet_notExisting() {\n\n\t\t\t$store = new MemoryStore();\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock1 */\n\t\t\t$scheduleMock1 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock1\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key1');\n\n\n\t\t\t$this->assertSame(null, $store->get('key2'));\n\n\t\t}\n\n\t\tpublic function testGetPut() {\n\n\t\t\t$store = new MemoryStore();\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock1 */\n\t\t\t$scheduleMock1 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock1\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key1');\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock2 */\n\t\t\t$scheduleMock2 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock2\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key2');\n\n\t\t\t$this->assertSame($store, $store->put($scheduleMock1));\n\t\t\t$this->assertSame($store, $store->put($scheduleMock2));\n\n\t\t\t$this->assertSame($scheduleMock1, $store->get('key1'));\n\t\t\t$this->assertSame($scheduleMock2, $store->get('key2'));\n\n\t\t}\n\n\t\tpublic function testPut_overwrite() {\n\t\t\t$store = new MemoryStore();\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock1 */\n\t\t\t$scheduleMock1 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock1\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key1');\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock2 */\n\t\t\t$scheduleMock2 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock2\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key1');\n\n\t\t\t$this->assertSame($store, $store->put($scheduleMock1));\n\t\t\t$this->assertSame($store, $store->put($scheduleMock2));\n\n\t\t\t$this->assertSame($scheduleMock2, $store->get('key1'));\n\n\t\t}\n\n\t\tpublic function testAll() {\n\n\t\t\t$store = new MemoryStore();\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock1 */\n\t\t\t$scheduleMock1 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock1\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key1');\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock2 */\n\t\t\t$scheduleMock2 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock2\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key2');\n\n\t\t\t$this->assertSame($store, $store->put($scheduleMock1));\n\t\t\t$this->assertSame($store, $store->put($scheduleMock2));\n\n\t\t\t$ret = $store->all();\n\n\t\t\t$this->assertContains($scheduleMock1, $ret);\n\t\t\t$this->assertContains($scheduleMock2, $ret);\n\n\t\t}\n\n\t\tpublic function testAll_withGroupFilter() {\n\n\t\t\t$store = new MemoryStore();\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock1 */\n\t\t\t$scheduleMock1 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock1\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key1');\n\t\t\t$scheduleMock1\n\t\t\t\t->method('getGroup')\n\t\t\t\t->willReturn('group1');\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock2 */\n\t\t\t$scheduleMock2 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock2\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key2');\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock3 */\n\t\t\t$scheduleMock3 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock3\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key3');\n\t\t\t$scheduleMock3\n\t\t\t\t->method('getGroup')\n\t\t\t\t->willReturn('group1');\n\n\t\t\t$this->assertSame($store, $store->put($scheduleMock1));\n\t\t\t$this->assertSame($store, $store->put($scheduleMock2));\n\t\t\t$this->assertSame($store, $store->put($scheduleMock3));\n\n\t\t\t// without group\n\t\t\t$ret = iterator_to_array($store->all());\n\t\t\t$this->assertContains($scheduleMock1, $ret);\n\t\t\t$this->assertContains($scheduleMock2, $ret);\n\t\t\t$this->assertContains($scheduleMock3, $ret);\n\n\t\t\t// with group\n\t\t\t$ret = iterator_to_array($store->all('group1'));\n\t\t\t$this->assertContains($scheduleMock1, $ret);\n\t\t\t$this->assertNotContains($scheduleMock2, $ret);\n\t\t\t$this->assertContains($scheduleMock3, $ret);\n\n\t\t}\n\n\t\tpublic function testAll_empty() {\n\n\t\t\t$store = new MemoryStore();\n\n\t\t\t$this->assertEmpty(iterator_to_array($store->all()));\n\n\t\t}\n\n\t\tpublic function testDelete() {\n\t\t\t$store = new MemoryStore();\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock1 */\n\t\t\t$scheduleMock1 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock1\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key1');\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock2 */\n\t\t\t$scheduleMock2 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock2\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key2');\n\n\t\t\t$this->assertSame($store, $store->put($scheduleMock1));\n\t\t\t$this->assertSame($store, $store->put($scheduleMock2));\n\n\t\t\t$this->assertSame($scheduleMock1, $store->get('key1'));\n\t\t\t$this->assertSame($scheduleMock2, $store->get('key2'));\n\n\t\t\t$this->assertSame($store, $store->delete('key1'));\n\n\t\t\t$this->assertSame(null, $store->get('key1'));\n\t\t\t$this->assertSame($scheduleMock2, $store->get('key2'));\n\n\t\t}\n\n\t\tpublic function testDelete_notExisting() {\n\t\t\t$store = new MemoryStore();\n\n\t\t\t/** @var CronSchedule|MockObject $scheduleMock1 */\n\t\t\t$scheduleMock1 = $this->getMockBuilder(CronSchedule::class)->getMock();\n\t\t\t$scheduleMock1\n\t\t\t\t->method('getKey')\n\t\t\t\t->willReturn('key1');\n\n\n\t\t\t$this->assertSame($store, $store->put($scheduleMock1));\n\n\t\t\t$this->assertSame($scheduleMock1, $store->get('key1'));\n\n\t\t\t$this->assertSame($store, $store->delete('key2'));\n\n\t\t\t$this->assertSame($scheduleMock1, $store->get('key1'));\n\n\t\t}\n\n\t}\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- test/Cases/Unit/Store/MemoryStoreTest.php	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ test/Cases/Unit/Store/MemoryStoreTest.php	(date 1559682641000)
+@@ -92,7 +92,7 @@
+ 			$this->assertSame($store, $store->put($scheduleMock1));
+ 			$this->assertSame($store, $store->put($scheduleMock2));
+ 
+-			$ret = $store->all();
++			$ret = $store->recurring();
+ 
+ 			$this->assertContains($scheduleMock1, $ret);
+ 			$this->assertContains($scheduleMock2, $ret);
+@@ -132,13 +132,13 @@
+ 			$this->assertSame($store, $store->put($scheduleMock3));
+ 
+ 			// without group
+-			$ret = iterator_to_array($store->all());
++			$ret = iterator_to_array($store->recurring());
+ 			$this->assertContains($scheduleMock1, $ret);
+ 			$this->assertContains($scheduleMock2, $ret);
+ 			$this->assertContains($scheduleMock3, $ret);
+ 
+ 			// with group
+-			$ret = iterator_to_array($store->all('group1'));
++			$ret = iterator_to_array($store->recurring('group1'));
+ 			$this->assertContains($scheduleMock1, $ret);
+ 			$this->assertNotContains($scheduleMock2, $ret);
+ 			$this->assertContains($scheduleMock3, $ret);
+@@ -149,7 +149,7 @@
+ 
+ 			$store = new MemoryStore();
+ 
+-			$this->assertEmpty(iterator_to_array($store->all()));
++			$this->assertEmpty(iterator_to_array($store->recurring()));
+ 
+ 		}
+ 
+Index: src/Cron/CronExpression.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\t/**\n\t * Created by PhpStorm.\n\t * User: chris\n\t * Date: 29.03.19\n\t * Time: 10:31\n\t */\n\n\tnamespace MehrIt\\LaraCron\\Cron;\n\n\n\tuse DateTimeZone;\n\tuse MehrIt\\LaraCron\\Contracts\\CronField;\n\tuse MehrIt\\LaraCron\\Cron\\Exception\\InvalidCronExpressionException;\n\tuse MehrIt\\LaraCron\\Cron\\Exception\\OutOfRangeException;\n\tuse MehrIt\\LaraCron\\Cron\\Field\\DayOfMonthField;\n\tuse MehrIt\\LaraCron\\Cron\\Field\\DayOfWeekField;\n\tuse MehrIt\\LaraCron\\Cron\\Field\\HourField;\n\tuse MehrIt\\LaraCron\\Cron\\Field\\MinuteField;\n\tuse MehrIt\\LaraCron\\Cron\\Field\\MonthField;\n\n\tclass CronExpression implements \\MehrIt\\LaraCron\\Contracts\\CronExpression\n\t{\n\t\tuse ConvertsTimestamps;\n\t\tuse DateStartOf;\n\n\t\tconst MODE_DAY_OF_MONTH = 1;\n\t\tconst MODE_DAY_OF_WEEK = 2;\n\t\tconst MODE_BOTH = 3;\n\n\t\tprotected $expression;\n\t\tprotected $timezone;\n\n\t\tprotected $parsed = false;\n\n\t\tprotected $dayMode;\n\n\n\t\t/**\n\t\t * @var CronField\n\t\t */\n\t\tprotected $month;\n\t\t/**\n\t\t * @var CronField\n\t\t */\n\t\tprotected $dayOfWeek;\n\t\t/**\n\t\t * @var CronField\n\t\t */\n\t\tprotected $dayOfMonth;\n\t\t/**\n\t\t * @var CronField\n\t\t */\n\t\tprotected $hour;\n\t\t/**\n\t\t * @var CronField\n\t\t */\n\t\tprotected $minute;\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function __construct(string $expression, $timezone) {\n\n\t\t\tif (!($timezone instanceof DateTimeZone))\n\t\t\t\t$timezone = new DateTimeZone($timezone);\n\n\t\t\t$this->expression = $expression;\n\t\t\t$this->timezone   = $timezone;\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function getExpression(): string {\n\t\t\treturn $this->expression;\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function getTimezone(): DateTimeZone {\n\t\t\treturn $this->timezone;\n\t\t}\n\n\n\t\tprotected function parse(string $expression, DateTimeZone $timezone) {\n\n\t\t\t// split into field expressions\n\t\t\t$fieldExpressions = explode(' ', preg_replace('/[\\s]+/', ' ', trim($expression)));\n\n\t\t\t// verify the the correct number of fields\n\t\t\tif (count($fieldExpressions) !== 5)\n\t\t\t\tthrow new InvalidCronExpressionException($expression);\n\n\t\t\t// init fields\n\t\t\t$this->minute     = new MinuteField($fieldExpressions[0], $timezone);\n\t\t\t$this->hour       = new HourField($fieldExpressions[1], $timezone);\n\t\t\t$this->dayOfMonth = new DayOfMonthField($fieldExpressions[2], $timezone);\n\t\t\t$this->month      = new MonthField($fieldExpressions[3], $timezone);\n\t\t\t$this->dayOfWeek  = new DayOfWeekField($fieldExpressions[4], $timezone);\n\n\t\t\t// determine day mode\n\t\t\tif (!$this->dayOfMonth->isWildcard() && !$this->dayOfWeek->isWildcard())\n\t\t\t\t$this->dayMode = self::MODE_BOTH;\n\t\t\telse if (!$this->dayOfWeek->isWildcard())\n\t\t\t\t$this->dayMode = self::MODE_DAY_OF_WEEK;\n\t\t\telse\n\t\t\t\t$this->dayMode = self::MODE_DAY_OF_MONTH;\n\t\t}\n\n\t\tprotected function prepare() {\n\t\t\tif (!$this->parsed) {\n\t\t\t\t$this->parse($this->expression, $this->timezone);\n\n\t\t\t\t$this->parsed = true;\n\t\t\t}\n\t\t}\n\n\t\t/**\n\t\t * Returns if the given fields match the given timestamp\n\t\t * @param int $ts The timestamp\n\t\t * @param array $fields The fields\n\t\t * @return bool True if matching. Else false.\n\t\t */\n\t\tprotected function matchesFields(int $ts, array $fields): bool {\n\t\t\tforeach ($fields as $index => $currField) {\n\t\t\t\tif (!$currField->matches($ts))\n\t\t\t\t\treturn false;\n\t\t\t}\n\n\t\t\treturn true;\n\t\t}/** @noinspection PhpDocMissingThrowsInspection */\n\n\t\t/**\n\t\t * Returns the next matching timestamp after the given date for the given cron fields\n\t\t * @param int $ts The timestamp\n\t\t * @param int $maxTs The maximum timestamp to return\n\t\t * @param CronField[] $fields The cron fields to match (most significant first)\n\t\t * @return int|null The timestamp or null if none found before maxTs\n\t\t */\n\t\tprotected function nextAfterFields(int $ts, int $maxTs, array $fields) : ?int {\n\n\t\t\t$startField = 0;\n\n\t\t\t// evaluate if all fields are matching\n\t\t\t$allFieldsMatching = true;\n\t\t\tforeach ($fields as $index => $currField) {\n\t\t\t\tif (!$currField->matches($ts)) {\n\t\t\t\t\t$allFieldsMatching = false;\n\n\t\t\t\t\t// We start with the most significant field, which is not matching. This field must\n\t\t\t\t\t// be advanced.\n\t\t\t\t\t$startField = $index;\n\t\t\t\t\tbreak;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// If ALL fields are matching, we begin with the least significant field which is not a\n\t\t\t// wildcard and force it to advance the timestamp to next matching value. Otherwise the\n\t\t\t// following algorithm would not advance the timestamp at all\n\t\t\tif ($allFieldsMatching) {\n\n\t\t\t\t// in case all fields are wildcards, the start field is not changed hereafter, so we\n\t\t\t\t// default it to least significant field\n\t\t\t\t$startField = 3;\n\n\t\t\t\tfor ($j = 3; $j >= 0; --$j) {\n\t\t\t\t\tif (!$fields[$j]->isWildcard()) {\n\t\t\t\t\t\t$startField = $j;\n\t\t\t\t\t\tbreak;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Loop through all fields (from most to least significant field) until all\n\t\t\t// fields are matching the timestamp or the timestamp becomes greater than\n\t\t\t// the given maximum.\n\t\t\t//\n\t\t\t// For each field:\n\t\t\t//\n\t\t\t// If current field matches and is not forced to advance, continue with next\n\t\t\t// field.\n\t\t\t//\n\t\t\t// Else, try to advance the timestamp by setting the current field's component\n\t\t\t// to next value matching the field. If not possible jump back to the previous\n\t\t\t// (more significant) field and force it to advance.\n\t\t\t//\n\t\t\t//\n\t\t\t$forceNext = true;\n\t\t\tfor ($i = $startField; $i < 4; ++$i) {\n\t\t\t\t$currField = $fields[$i];\n\n\t\t\t\t// If the current field does not match the timestamp or if it is forced to\n\t\t\t\t// advance, we let it advance the timestamp to the next matching value.\n\t\t\t\tif ($forceNext || !$currField->matches($ts)) {\n\t\t\t\t\t$forceNext = false;\n\n\t\t\t\t\ttry {\n\t\t\t\t\t\t// advance to next matching value by incrementing field's component of\n\t\t\t\t\t\t// the timestamp\n\t\t\t\t\t\t$ts = $currField->nextAfter($ts);\n\t\t\t\t\t}\n\t\t\t\t\tcatch (OutOfRangeException $ex) {\n\t\t\t\t\t\t// If this exception is thrown, no later matching timestamp could be\n\t\t\t\t\t\t// generated by changing the field's component. So we have to increment\n\t\t\t\t\t\t// a more significant component\n\n\t\t\t\t\t\tif ($i === 0) {\n\t\t\t\t\t\t\t// advance to next year\n\t\t\t\t\t\t\t$tsDate = $this->dateForTimestamp($ts, $this->timezone);\n\t\t\t\t\t\t\t/** @noinspection PhpUnhandledExceptionInspection */\n\t\t\t\t\t\t\t$ts = $this->startOf($tsDate, 'year', (int)$tsDate->format('Y') + 1, $this->timezone)->getTimestamp();\n\t\t\t\t\t\t\t--$i;\n\t\t\t\t\t\t}\n\t\t\t\t\t\telse {\n\t\t\t\t\t\t\t// continue with next higher component and force to increment\n\t\t\t\t\t\t\t$i -= 2;\n\t\t\t\t\t\t\t$forceNext = true;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\n\t\t\t\t\t// if exceeds passed maximum, we stop searching\n\t\t\t\t\tif ($ts > $maxTs)\n\t\t\t\t\t\treturn null;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t\treturn $ts;\n\t\t}\n\n\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function matches(int $ts): bool {\n\t\t\t$this->prepare();\n\n\t\t\tswitch($this->dayMode) {\n\n\t\t\t\tcase self::MODE_DAY_OF_MONTH:\n\t\t\t\t\t// only day-of-month is set => it must match\n\t\t\t\t\treturn $this->matchesFields($ts, [$this->minute, $this->hour, $this->dayOfMonth, $this->month]);\n\n\t\t\t\tcase self::MODE_DAY_OF_WEEK:\n\t\t\t\t\t// only day-of-week is set => it must match\n\t\t\t\t\treturn $this->matchesFields($ts, [$this->minute, $this->hour, $this->dayOfWeek, $this->month]);\n\n\t\t\t\tdefault:\n\t\t\t\t\t// day-of-month and day-of-week are set => one of them must match\n\t\t\t\t\treturn\n\t\t\t\t\t\t$this->matchesFields($ts, [$this->minute, $this->hour, $this->dayOfMonth, $this->month]) ||\n\t\t\t\t\t\t$this->matchesFields($ts, [$this->minute, $this->hour, $this->dayOfWeek, $this->month]);\n\n\t\t\t}\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function nextAfter(int $ts, int $maxTs): ?int {\n\t\t\t$this->prepare();\n\n\t\t\tswitch ($this->dayMode) {\n\n\t\t\t\tcase self::MODE_DAY_OF_MONTH:\n\t\t\t\t\t// only day-of-month is set\n\t\t\t\t\treturn $this->nextAfterFields($ts, $maxTs, [$this->month, $this->dayOfMonth, $this->hour, $this->minute]);\n\n\t\t\t\tcase self::MODE_DAY_OF_WEEK:\n\t\t\t\t\t// only day-of-week is set\n\t\t\t\t\treturn $this->nextAfterFields($ts, $maxTs, [$this->month, $this->dayOfWeek, $this->hour, $this->minute]);\n\n\t\t\t\tdefault:\n\t\t\t\t\t// day-of-month and day-of-week are set => return least\n\t\t\t\t\t$ret = [\n\t\t\t\t\t\t$this->nextAfterFields($ts, $maxTs, [$this->month, $this->dayOfMonth, $this->hour, $this->minute]),\n\t\t\t\t\t\t$this->nextAfterFields($ts, $maxTs, [$this->month, $this->dayOfWeek, $this->hour, $this->minute]),\n\t\t\t\t\t];\n\n\t\t\t\t\t// return lowest\n\t\t\t\t\tif ($ret[0] === null)\n\t\t\t\t\t\treturn $ret[1];\n\t\t\t\t\telseif ($ret[1] === null)\n\t\t\t\t\t\treturn $ret[0];\n\t\t\t\t\telse\n\t\t\t\t\t\treturn min($ret[0], $ret[1]);\n\t\t\t}\n\n\t\t}\n\n\n\t}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/Cron/CronExpression.php	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ src/Cron/CronExpression.php	(date 1559683524000)
+@@ -57,6 +57,11 @@
+ 		 */
+ 		protected $minute;
+ 
++		/**
++		 * @var int|null
++		 */
++		protected $onceTs = null;
++
+ 		/**
+ 		 * @inheritDoc
+ 		 */
+@@ -83,30 +88,44 @@
+ 			return $this->timezone;
+ 		}
+ 
++		/**
++		 * @inheritDoc
++		 */
++		public function isOneTime(): bool {
++			return $this->onceTs !== null;
++		}
++
+ 
+ 		protected function parse(string $expression, DateTimeZone $timezone) {
+ 
+-			// split into field expressions
+-			$fieldExpressions = explode(' ', preg_replace('/[\s]+/', ' ', trim($expression)));
++			$expression = trim($expression);
++
++			if (preg_match('/^\@[0-9]+$/', $expression)) {
++				$this->onceTs = (int)substr($expression, 1);
++			}
++			else {
++				// split into field expressions
++				$fieldExpressions = explode(' ', preg_replace('/[\s]+/', ' ', $expression));
+ 
+-			// verify the the correct number of fields
+-			if (count($fieldExpressions) !== 5)
+-				throw new InvalidCronExpressionException($expression);
++				// verify the the correct number of fields
++				if (count($fieldExpressions) !== 5)
++					throw new InvalidCronExpressionException($expression);
+ 
+-			// init fields
+-			$this->minute     = new MinuteField($fieldExpressions[0], $timezone);
+-			$this->hour       = new HourField($fieldExpressions[1], $timezone);
+-			$this->dayOfMonth = new DayOfMonthField($fieldExpressions[2], $timezone);
+-			$this->month      = new MonthField($fieldExpressions[3], $timezone);
+-			$this->dayOfWeek  = new DayOfWeekField($fieldExpressions[4], $timezone);
++				// init fields
++				$this->minute     = new MinuteField($fieldExpressions[0], $timezone);
++				$this->hour       = new HourField($fieldExpressions[1], $timezone);
++				$this->dayOfMonth = new DayOfMonthField($fieldExpressions[2], $timezone);
++				$this->month      = new MonthField($fieldExpressions[3], $timezone);
++				$this->dayOfWeek  = new DayOfWeekField($fieldExpressions[4], $timezone);
+ 
+-			// determine day mode
+-			if (!$this->dayOfMonth->isWildcard() && !$this->dayOfWeek->isWildcard())
+-				$this->dayMode = self::MODE_BOTH;
+-			else if (!$this->dayOfWeek->isWildcard())
+-				$this->dayMode = self::MODE_DAY_OF_WEEK;
+-			else
+-				$this->dayMode = self::MODE_DAY_OF_MONTH;
++				// determine day mode
++				if (!$this->dayOfMonth->isWildcard() && !$this->dayOfWeek->isWildcard())
++					$this->dayMode = self::MODE_BOTH;
++				else if (!$this->dayOfWeek->isWildcard())
++					$this->dayMode = self::MODE_DAY_OF_WEEK;
++				else
++					$this->dayMode = self::MODE_DAY_OF_MONTH;
++			}
+ 		}
+ 
+ 		protected function prepare() {
+@@ -238,6 +257,10 @@
+ 		public function matches(int $ts): bool {
+ 			$this->prepare();
+ 
++			// handle once expressions
++			if ($this->isOneTime())
++				return $ts === $this->onceTs;
++
+ 			switch($this->dayMode) {
+ 
+ 				case self::MODE_DAY_OF_MONTH:
+@@ -263,6 +286,14 @@
+ 		public function nextAfter(int $ts, int $maxTs): ?int {
+ 			$this->prepare();
+ 
++			// handle once expressions
++			if ($this->isOneTime()) {
++				if ($ts > $this->onceTs && $maxTs >= $this->onceTs)
++					return $this->onceTs;
++
++				return null;
++			}
++
+ 			switch ($this->dayMode) {
+ 
+ 				case self::MODE_DAY_OF_MONTH:
+Index: src/CronManager.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\t/**\n\t * Created by PhpStorm.\n\t * User: chris\n\t * Date: 03.02.19\n\t * Time: 00:06\n\t */\n\n\tnamespace MehrIt\\LaraCron;\n\n\n\tuse Illuminate\\Contracts\\Bus\\QueueingDispatcher;\n\tuse Illuminate\\Support\\Str;\n\tuse MehrIt\\LaraCron\\Contracts;\n\tuse MehrIt\\LaraCron\\Contracts\\CronExpression;\n\tuse MehrIt\\LaraCron\\Contracts\\CronManager as CronManagerContract;\n\tuse MehrIt\\LaraCron\\Contracts\\CronSchedule;\n\tuse MehrIt\\LaraCron\\Contracts\\CronScheduleLog;\n\tuse MehrIt\\LaraCron\\Contracts\\CronStore;\n\tuse MehrIt\\LaraCron\\Queue\\InteractsWithCron;\n\tuse Traversable;\n\n\t/**\n\t * Manages cron schedules\n\t * @package MehrIt\\LaraDynamicSchedules\n\t */\n\tclass CronManager implements CronManagerContract\n\t{\n\t\tuse CreatesCronStore;\n\t\tuse CreatesCronScheduleLog;\n\n\t\t/**\n\t\t * @var CronStore\n\t\t */\n\t\tprotected $store;\n\n\t\t/**\n\t\t * @var CronScheduleLog\n\t\t */\n\t\tprotected $scheduleLog;\n\n\t\t/**\n\t\t * @var QueueingDispatcher\n\t\t */\n\t\tprotected $dispatcher;\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function schedule(CronExpression $cronExpression, Contracts\\CronJob $job, string $key = null, string $group = null, $active = true, int $catchUpTimeout = 0): CronSchedule {\n\n\t\t\t$schedule = null;\n\t\t\t$store    = $this->getStore();\n\n\t\t\t// generate new key or fetch existing schedule\n\t\t\tif (!$key)\n\t\t\t\t$key = Str::orderedUuid();\n\n\t\t\t// if yet not existing, we create a new schedule\n\t\t\t$schedule = app(CronSchedule::class, [\n\t\t\t\t'expression'     => $cronExpression,\n\t\t\t\t'job'            => $job,\n\t\t\t\t'key'            => $key,\n\t\t\t\t'group'          => $group,\n\t\t\t\t'active'         => $active,\n\t\t\t\t'catchupTimeout' => $catchUpTimeout,\n\t\t\t]);\n\n\t\t\t// save the schedule\n\t\t\t$store->put($schedule);\n\n\t\t\treturn $schedule;\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function describeAll(string $group = null): Traversable {\n\t\t\treturn $this->getStore()->all($group);\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function describe(string $key): ?CronSchedule {\n\t\t\treturn $this->getStore()->get($key);\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function delete(string $key): Contracts\\CronManager {\n\t\t\t$this->getStore()->delete($key);\n\n\t\t\treturn $this;\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function lastScheduled(string $key): ?int {\n\t\t\treturn $this->getScheduleLog()->getLastSchedule($key);\n\t\t}\n\n\t\t/**\n\t\t * @inheritDoc\n\t\t */\n\t\tpublic function dispatch(int $period): int {\n\n\t\t\t$dispatchCount = 0;\n\n\t\t\t$ts    = time();\n\t\t\t$maxTs = $ts + $period;\n\n\t\t\t$scheduleLog = $this->getScheduleLog();\n\n\n\t\t\tforeach($this->getStore()->all() as $currSchedule) {\n\n\t\t\t\tif ($currSchedule->isActive()) {\n\n\t\t\t\t\t$next = $ts;\n\t\t\t\t\t$last = null;\n\n\t\t\t\t\twhile ($next && $next !== $last) {\n\n\t\t\t\t\t\t$lastScheduled = $scheduleLog->getLastSchedule($currSchedule->getKey());\n\n\t\t\t\t\t\t$last = $next;\n\t\t\t\t\t\t$next = $currSchedule->getExpression()->nextAfter($last, $maxTs);\n\n\t\t\t\t\t\t// check if we missed a scheduled job and therefore need to catchup\n\t\t\t\t\t\tif ($lastScheduled !== null && $currSchedule->getCatchUpTimeout() > 0) {\n\n\t\t\t\t\t\t\t$nextAfterLast = $lastScheduled;\n\t\t\t\t\t\t\twhile (true) {\n\n\t\t\t\t\t\t\t\t// calculate next desired execution time\n\t\t\t\t\t\t\t\t$nextAfterLast = $currSchedule->getExpression()->nextAfter($nextAfterLast, $maxTs);\n\n\t\t\t\t\t\t\t\t// stop, if reaching the regular next date\n\t\t\t\t\t\t\t\tif ($nextAfterLast >= $next)\n\t\t\t\t\t\t\t\t\tbreak;\n\n\t\t\t\t\t\t\t\t// if within catchup timeout, we schedule the missed job\n\t\t\t\t\t\t\t\tif ($nextAfterLast > $ts - $currSchedule->getCatchUpTimeout()) {\n\t\t\t\t\t\t\t\t\t$this->dispatchFor($currSchedule, $nextAfterLast);\n\t\t\t\t\t\t\t\t\t++$dispatchCount;\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\t// schedule if we have a new schedule time\n\t\t\t\t\t\tif ($next > $lastScheduled) {\n\t\t\t\t\t\t\t$this->dispatchFor($currSchedule, $next);\n\t\t\t\t\t\t\t++$dispatchCount;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t}\n\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t\treturn $dispatchCount;\n\t\t}\n\n\t\t/**\n\t\t * Dispatches a job for the given schedule to be executed at given timestamp\n\t\t * @param CronSchedule $schedule The schedule\n\t\t * @param int $ts The timestamp the job should be executed\n\t\t */\n\t\tprotected function dispatchFor(CronSchedule $schedule, int $ts) {\n\n\t\t\t$now = time();\n\n\t\t\t/** @var mixed|InteractsWithCron $job */\n\t\t\t$job = clone $schedule->getJob();\n\n\t\t\t// pass cron schedule information\n\t\t\tif (is_object($job) && in_array(InteractsWithCron::class, class_uses_recursive($job))) {\n\t\t\t\t$job->setCronScheduleKey($schedule->getKey());\n\t\t\t\t$job->setCronScheduledTs($ts);\n\t\t\t\t$job->setCronDispatchTs($now);\n\t\t\t}\n\n\t\t\t// set delay, if desired execution time is in feature\n\t\t\t$delay = $ts - $now;\n\t\t\tif ($delay > 0)\n\t\t\t\t$job->delay($delay);\n\n\t\t\t// create dispatch\n\t\t\t$this->getDispatcher()->dispatchToQueue($job);\n\n\t\t\t// log the timestamp\n\t\t\t$this->getScheduleLog()->log($schedule->getKey(), $ts);\n\t\t}\n\n\t\t/**\n\t\t * Gets the store instance\n\t\t * @return CronStore The store instance\n\t\t */\n\t\tpublic function getStore() : CronStore {\n\t\t\tif (!$this->store)\n\t\t\t\t$this->store = $this->makeStore(config('cron.store'));\n\n\t\t\treturn $this->store;\n\t\t}\n\n\t\t/**\n\t\t * Gets the log instance\n\t\t * @return CronScheduleLog The log instance\n\t\t */\n\t\tpublic function getScheduleLog() : CronScheduleLog {\n\t\t\tif (!$this->scheduleLog)\n\t\t\t\t$this->scheduleLog = $this->makeScheduleLog(config('cron.scheduleLog'));\n\n\t\t\treturn $this->scheduleLog;\n\t\t}\n\n\t\tpublic function getDispatcher() : QueueingDispatcher {\n\t\t\tif (!$this->dispatcher)\n\t\t\t\t$this->dispatcher = app(QueueingDispatcher::class);\n\n\t\t\treturn $this->dispatcher;\n\t\t}\n\n\t}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/CronManager.php	(revision 33181c145030381519cbc6bc3d8f2cc3cbc53221)
++++ src/CronManager.php	(date 1559685763000)
+@@ -72,11 +72,22 @@
+ 			return $schedule;
+ 		}
+ 
++		/**
++		 * @inheritDoc
++		 */
++		public function scheduleOnce($timestamp, Contracts\CronJob $job, string $key = null, $active = true) : CronSchedule {
++
++			if ($timestamp instanceof \DateTimeInterface)
++				$timestamp = $timestamp->getTimestamp();
++
++			return $this->schedule(new Cron\CronExpression("@$timestamp", 'UTC'), $job, $key, null, $active);
++		}
++
+ 		/**
+ 		 * @inheritDoc
+ 		 */
+ 		public function describeAll(string $group = null): Traversable {
+-			return $this->getStore()->all($group);
++			return $this->getStore()->recurring($group);
+ 		}
+ 
+ 		/**
+@@ -113,9 +124,9 @@
+ 			$maxTs = $ts + $period;
+ 
+ 			$scheduleLog = $this->getScheduleLog();
+-
+-
+-			foreach($this->getStore()->all() as $currSchedule) {
++			// TODO: lock schedule log table access (before fetching jobs, to avoid inconsistent one time job dispatch)
++// TODO: optimize for one time jobs
++			foreach($this->recurringAndOneTime($maxTs) as $currSchedule) {
+ 
+ 				if ($currSchedule->isActive()) {
+ 
+@@ -162,9 +173,28 @@
+ 
+ 			}
+ 
++			// TODO: delete dispatched one time schedules
++
+ 			return $dispatchCount;
+ 		}
+ 
++		/**
++		 * Returns all recurring and one time schedules
++		 * @param int $oneTimeMaxTs The maximum timestamp for one time schedules to return
++		 * @return CronScheduleLog[]|\Generator The schedules
++		 */
++		protected function recurringAndOneTime(int $oneTimeMaxTs) {
++			$store = $this->getStore();
++
++			foreach($store->recurring() as $curr) {
++				yield $curr;
++			}
++
++			foreach($store->oneTime($oneTimeMaxTs) as $curr) {
++				yield $curr;
++			}
++		}
++
+ 		/**
+ 		 * Dispatches a job for the given schedule to be executed at given timestamp
+ 		 * @param CronSchedule $schedule The schedule

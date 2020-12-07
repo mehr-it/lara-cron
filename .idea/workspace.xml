@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6e426309-dc14-4ccd-810b-f63b70752007" name="Default Changelist" comment="added testing helpers">
+      <change afterPath="$PROJECT_DIR$/test-bootstrap.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/phpunit.xml" beforeDir="false" afterPath="$PROJECT_DIR$/phpunit.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" doNotAsk="true">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="PUSH_TAGS">
+      <GitPushTagMode />
+    </option>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="Homestead - LaraDynamicSchedules">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/vendor/orchestra/testbench" />
+      <path value="$PROJECT_DIR$/vendor/phpdocumentor/reflection-docblock" />
+      <path value="$PROJECT_DIR$/vendor/phpdocumentor/reflection-common" />
+      <path value="$PROJECT_DIR$/vendor/phpdocumentor/type-resolver" />
+      <path value="$PROJECT_DIR$/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/vendor/psr/simple-cache" />
+      <path value="$PROJECT_DIR$/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-token-stream" />
+      <path value="$PROJECT_DIR$/vendor/laravel/framework" />
+      <path value="$PROJECT_DIR$/vendor/opis/closure" />
+      <path value="$PROJECT_DIR$/vendor/phpspec/prophecy" />
+      <path value="$PROJECT_DIR$/vendor/swiftmailer/swiftmailer" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/instantiator" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/inflector" />
+      <path value="$PROJECT_DIR$/vendor/vlucas/phpdotenv" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/vendor/league/flysystem" />
+      <path value="$PROJECT_DIR$/vendor/nesbot/carbon" />
+      <path value="$PROJECT_DIR$/vendor/orchestra/testbench-core" />
+      <path value="$PROJECT_DIR$/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/vendor/egulias/email-validator" />
+      <path value="$PROJECT_DIR$/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/routing" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/vendor/symfony/css-selector" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/resource-operations" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/uuid" />
+      <path value="$PROJECT_DIR$/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php72" />
+      <path value="$PROJECT_DIR$/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-kernel" />
+      <path value="$PROJECT_DIR$/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/vendor/tijsverkoyen/css-to-inline-styles" />
+      <path value="$PROJECT_DIR$/vendor/symfony/translation" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/vendor/mockery/mockery" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-iconv" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/vendor/hamcrest/hamcrest-php" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/vendor/dragonmantank/cron-expression" />
+      <path value="$PROJECT_DIR$/vendor/moontoast/math" />
+      <path value="$PROJECT_DIR$/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/translation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php73" />
+      <path value="$PROJECT_DIR$/vendor/phpoption/phpoption" />
+      <path value="$PROJECT_DIR$/vendor/phpseclib/bcmath_compat" />
+      <path value="$PROJECT_DIR$/vendor/phpseclib/phpseclib" />
+      <path value="$PROJECT_DIR$/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-client-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/error-handler" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/vendor/brick/math" />
+      <path value="$PROJECT_DIR$/vendor/league/mime-type-detection" />
+      <path value="$PROJECT_DIR$/vendor/fakerphp/faker" />
+      <path value="$PROJECT_DIR$/vendor/league/commonmark" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/collection" />
+      <path value="$PROJECT_DIR$/vendor/voku/portable-ascii" />
+      <path value="$PROJECT_DIR$/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/vendor/psr/event-dispatcher" />
+    </include_path>
+  </component>
+  <component name="ProjectId" id="1QuvYGsXFk4KNu840jrxB5AGl7j" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="MANAGE_IGNORE_FILES_PROPERTY" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="JSON" />
+    <property name="com.jetbrains.php.lang.actions.generation.PhpGenerateFieldAccessorHandlerBase$MyMemberChooser.fluent.setters.last.selected" value="true" />
+    <property name="credentialsType com.jetbrains.php.remote.interpreter.ui.PhpInplaceEditRemoteSdkForm" value="Vagrant" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/test/Cases" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="php.override.implement.member.chooser.php.doc" value="INHERIT" />
+    <property name="settings.editor.selected.configurable" value="web-ide.project.structure" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/test" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Multirun.All">
+    <configuration name="All" type="Multirun" factoryName="Multirun" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="0.0">
+      <runConfiguration name="All PHP 7.3 - Laravel 5.8" type="PHPUnit" />
+      <runConfiguration name="All PHP 7.3 - Laravel 6" type="PHPUnit" />
+      <runConfiguration name="All PHP 7.3 - Laravel 7" type="PHPUnit" />
+      <runConfiguration name="All PHP 7.3 - Laravel 8" type="PHPUnit" />
+      <runConfiguration name="All PHP 8 - Laravel 8" type="PHPUnit" />
+      <runConfiguration name="All PHP 8 - Laravel 7" type="PHPUnit" />
+      <method v="2" />
+    </configuration>
+    <configuration name="All PHP 7.3 - Laravel 5.8" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="Homestead PHP 7.3" />
+        </PhpTestInterpreterSettings>
+        <envs>
+          <env name="TEST_PACKAGES" value="laravel/framework:5.8.* orchestra/testbench:3.8.*" />
+        </envs>
+      </CommandLine>
+      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" directory="$PROJECT_DIR$/test/Cases" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="All PHP 7.3 - Laravel 6" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="Homestead PHP 7.3" />
+        </PhpTestInterpreterSettings>
+        <envs>
+          <env name="TEST_PACKAGES" value="laravel/framework:6.* orchestra/testbench:4.*" />
+        </envs>
+      </CommandLine>
+      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" directory="$PROJECT_DIR$/test/Cases" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="All PHP 7.3 - Laravel 7" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="Homestead PHP 7.3" />
+        </PhpTestInterpreterSettings>
+        <envs>
+          <env name="TEST_PACKAGES" value="laravel/framework:7.* orchestra/testbench:5.*" />
+        </envs>
+      </CommandLine>
+      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" directory="$PROJECT_DIR$/test/Cases" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="All PHP 7.3 - Laravel 8" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="Homestead PHP 7.3" />
+        </PhpTestInterpreterSettings>
+        <envs>
+          <env name="TEST_PACKAGES" value="laravel/framework:8.* orchestra/testbench:6.*" />
+        </envs>
+      </CommandLine>
+      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" directory="$PROJECT_DIR$/test/Cases" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="All PHP 8 - Laravel 7" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="Homestead PHP 8.0" />
+        </PhpTestInterpreterSettings>
+        <envs>
+          <env name="TEST_PACKAGES" value="laravel/framework:7.* orchestra/testbench:5.*" />
+        </envs>
+      </CommandLine>
+      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" directory="$PROJECT_DIR$/test/Cases" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="All PHP 8 - Laravel 8" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="Homestead PHP 8.0" />
+        </PhpTestInterpreterSettings>
+        <envs>
+          <env name="TEST_PACKAGES" value="laravel/framework:8.* orchestra/testbench:6.*" />
+        </envs>
+      </CommandLine>
+      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" directory="$PROJECT_DIR$/test/Cases" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="Homestead PHP 7.3" />
+        </PhpTestInterpreterSettings>
+      </CommandLine>
+      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" directory="$PROJECT_DIR$/test/Cases" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Multirun.All" />
+      <item itemvalue="PHPUnit.All PHP 7.3 - Laravel 5.8" />
+      <item itemvalue="PHPUnit.All PHP 7.3 - Laravel 6" />
+      <item itemvalue="PHPUnit.All PHP 7.3 - Laravel 7" />
+      <item itemvalue="PHPUnit.All PHP 7.3 - Laravel 8" />
+      <item itemvalue="PHPUnit.All PHP 8 - Laravel 8" />
+      <item itemvalue="PHPUnit.All PHP 8 - Laravel 7" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6e426309-dc14-4ccd-810b-f63b70752007" name="Default Changelist" comment="" />
+      <created>1549148484131</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1549148484131</updated>
+      <workItem from="1549148487647" duration="45217000" />
+      <workItem from="1549665504770" duration="5068000" />
+      <workItem from="1549949704588" duration="617000" />
+      <workItem from="1550050088430" duration="885000" />
+      <workItem from="1550470064358" duration="1210000" />
+      <workItem from="1551678111950" duration="599000" />
+      <workItem from="1552048033151" duration="599000" />
+      <workItem from="1552297724836" duration="595000" />
+      <workItem from="1552481785266" duration="599000" />
+      <workItem from="1552989490681" duration="599000" />
+      <workItem from="1553126322416" duration="11154000" />
+      <workItem from="1553844662241" duration="597000" />
+      <workItem from="1553847534195" duration="31951000" />
+      <workItem from="1554097347015" duration="128329000" />
+      <workItem from="1554448871698" duration="621000" />
+      <workItem from="1555712097279" duration="4390000" />
+      <workItem from="1555798933713" duration="1398000" />
+      <workItem from="1557225229894" duration="9310000" />
+      <workItem from="1557400658780" duration="596000" />
+      <workItem from="1558330133196" duration="1206000" />
+      <workItem from="1558682449106" duration="49000" />
+      <workItem from="1559682193422" duration="12858000" />
+      <workItem from="1561672019537" duration="60000" />
+      <workItem from="1568633343373" duration="2635000" />
+      <workItem from="1569364918019" duration="1198000" />
+      <workItem from="1571895737528" duration="2125000" />
+      <workItem from="1571903789230" duration="14006000" />
+      <workItem from="1574324720475" duration="3931000" />
+      <workItem from="1574930553703" duration="2874000" />
+      <workItem from="1575995079914" duration="2645000" />
+      <workItem from="1581373325013" duration="1585000" />
+      <workItem from="1582291389267" duration="6000" />
+      <workItem from="1600342306803" duration="7118000" />
+      <workItem from="1601442585200" duration="596000" />
+      <workItem from="1607092206338" duration="3048000" />
+      <workItem from="1607350170993" duration="2250000" />
+    </task>
+    <task id="LOCAL-00001" summary="initial commit">
+      <created>1554413532209</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1554413532209</updated>
+    </task>
+    <task id="LOCAL-00002" summary="changed to stable dependency of moontoast/math">
+      <created>1554414085587</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1554414085587</updated>
+    </task>
+    <task id="LOCAL-00003" summary="added validation rule">
+      <created>1555715086603</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1555715086603</updated>
+    </task>
+    <task id="LOCAL-00004" summary="CronJob contract does not extend ShouldQueue anymore, which does not force them to always be queued">
+      <created>1555799414212</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1555799414212</updated>
+    </task>
+    <task id="LOCAL-00005" summary="FIX: only the first cron job due within the upcoming period was dispatched">
+      <created>1557240124462</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1557240124462</updated>
+    </task>
+    <task id="LOCAL-00006" summary="OneTimeJobs">
+      <created>1568633906087</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1568633906087</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Support for laravel 5.8 and 6.0">
+      <created>1571906309182</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1571906309182</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Commit for travis">
+      <created>1571906487231</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1571906487231</updated>
+    </task>
+    <task id="LOCAL-00009" summary="FIX: allow PHPUnit 8.0 in composer.json">
+      <created>1571907055901</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1571907055901</updated>
+    </task>
+    <task id="LOCAL-00010" summary="FIX: add void return for setup method">
+      <created>1571907324600</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1571907324600</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Added status images to readme">
+      <created>1571907818080</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1571907818080</updated>
+    </task>
+    <task id="LOCAL-00012" summary="FIX: avoid error in catchup check, when next schedule date is greater than max period timestamp">
+      <created>1574672899212</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1574672899212</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Fixed some typos in Readme">
+      <created>1574673754203</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1574673754203</updated>
+    </task>
+    <task id="LOCAL-00014" summary="FIX: schedule was not locked when dispatching cron jobs, so duplicate dispatches could occur">
+      <created>1600345685286</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1600345685286</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Added support for laravel 7/8 and removed moontoast/math dependency">
+      <created>1607093715948</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1607093715948</updated>
+    </task>
+    <task id="LOCAL-00016" summary="added travis config for laravel 7/8">
+      <created>1607093859577</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1607093859577</updated>
+    </task>
+    <task id="LOCAL-00017" summary="added travis config for PHP 8">
+      <created>1607095196362</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1607095196362</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="initial commit" />
+    <MESSAGE value="changed to stable dependency of moontoast/math" />
+    <MESSAGE value="added validation rule" />
+    <MESSAGE value="CronJob contract does not extend ShouldQueue anymore, which does not force them to always be queued" />
+    <MESSAGE value="FIX: only the first cron job due within the upcoming period was dispatched" />
+    <MESSAGE value="OneTimeJobs" />
+    <MESSAGE value="Support for laravel 5.8 and 6.0" />
+    <MESSAGE value="Commit for travis" />
+    <MESSAGE value="FIX: allow PHPUnit 8.0 in composer.json" />
+    <MESSAGE value="FIX: add void return for setup method" />
+    <MESSAGE value="Added status images to readme" />
+    <MESSAGE value="FIX: avoid error in catchup check, when next schedule date is greater than max period timestamp" />
+    <MESSAGE value="Fixed some typos in Readme" />
+    <MESSAGE value="FIX: schedule was not locked when dispatching cron jobs, so duplicate dispatches could occur" />
+    <MESSAGE value="Added support for laravel 7/8 and removed moontoast/math dependency" />
+    <MESSAGE value="added travis config for laravel 7/8" />
+    <MESSAGE value="added travis config for PHP 8" />
+    <option name="LAST_COMMIT_MESSAGE" value="added travis config for PHP 8" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/src/Cron/ConvertsTimestamps.php</url>
+          <line>72</line>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PHPUnitRunConfigurationType">
+        <watch expression="(new \DateTime(&quot;@&quot; . $ts))-&gt;format('c')" language="PHP" />
+        <watch expression="(new \DateTime('@' . $maxTs))-&gt;format('c')" language="PHP" />
+        <watch expression="$this-&gt;asDate($timestamps[0])-&gt;format('Y-m-d H:i:s')" language="PHP" />
+        <watch expression="$this-&gt;isMatching($ts)" />
+        <watch expression="(new Carbon('@' . $ts00))-&gt;setTimezone($this-&gt;timezone)-&gt;format('c')" language="PHP" />
+        <watch expression="$tsDate-&gt;getTimestamp()" language="PHP" />
+        <watch expression="$this-&gt;asDate($ts - 3600)-&gt;getTimestamp()" />
+        <watch expression="$this-&gt;asDate($ts - 3600)" />
+        <watch expression="$this-&gt;asDate($ts + 3600)" />
+        <watch expression="$this-&gt;dateForTimestamp($timestamp - 3600, $timezone)-&gt;format('YmdHis')" />
+        <watch expression="$date-&gt;getTimezone()-&gt;getTransitions($timestamp - 3600, $timestamp)" language="PHP" />
+        <watch expression="$date-&gt;getTimezone()-&gt;getTransitions($timestamp - 13600, $timestamp - 3600)" language="PHP" />
+        <watch expression=" $timezone-&gt;getTransitions($timestamp - 3 * 3600, $timestamp + 3 * 3600)" />
+        <watch expression="$currTrans['ts'] - $delta &lt;= $ts &amp;&amp; $ts &lt; $currTrans['ts']" />
+        <watch expression="$currTrans['ts'] &lt;= $ts &amp;&amp; $ts &lt; $currTrans['ts'] - $delta" />
+        <watch expression="$this-&gt;getFieldExpressions()" />
+        <watch expression="$currTrans['ts'] - $delta" />
+        <watch expression="$currTrans['ts'] - $delta &lt;= $ts" />
+        <watch expression="$job instanceof CronJob &amp;&amp;&#10;&#9;&#9;&#9;&#9;       $job-&gt;getCronScheduleKey() === 'key1' &amp;&amp;&#10;&#9;&#9;&#9;&#9;       $job-&gt;getCronScheduleKey() === $now + 1000 &amp;&amp;&#10;&#9;&#9;&#9;&#9;       $job-&gt;delay &lt;= 1000 &amp;&amp; $job-&gt;delay &gt;= 995;" />
+        <watch expression="$job-&gt;getCronScheduledTs() === $now - 150" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="breakpointCondition">
+      <expression>
+        <expression-string>$currTs == 1555326900</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>$currTs == 1572138000</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>$currTs == 1572134400</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+    <expressions id="watch">
+      <expression>
+        <expression-string>(new \DateTime('@' . $maxTs))-&gt;format('c')</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>(new \DateTime(&quot;@&quot; . $ts))-&gt;format('c')</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>$date-&gt;getTimezone()-&gt;getTransitions($timestamp - 3600, $timestamp)</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>$date-&gt;getTimezone()-&gt;getTransitions($timestamp - 13600, $timestamp - 3600)</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>$date-&gt;getTimezone()-&gt;getTransitions($timestamp - 3600, $timestamp + 3600)</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>$tsDate-&gt;getTimestamp()</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>(new \DateTime(&quot;@&quot; . $beforeTs))-&gt;format('c')</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>(new DateTime(&quot;@&quot; . $beforeTs))-&gt;format('c')</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>$beforeTs - $timestamp</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>$afterTs - $timestamp</expression-string>
+        <language-id>PHP</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+  </component>
+</project>
