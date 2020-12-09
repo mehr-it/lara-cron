@@ -19,10 +19,8 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6e426309-dc14-4ccd-810b-f63b70752007" name="Default Changelist" comment="added testing helpers">
-      <change afterPath="$PROJECT_DIR$/test-bootstrap.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/phpunit.xml" beforeDir="false" afterPath="$PROJECT_DIR$/phpunit.xml" afterDir="false" />
+    <list default="true" id="6e426309-dc14-4ccd-810b-f63b70752007" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -266,8 +264,8 @@
       <item itemvalue="PHPUnit.All PHP 7.3 - Laravel 6" />
       <item itemvalue="PHPUnit.All PHP 7.3 - Laravel 7" />
       <item itemvalue="PHPUnit.All PHP 7.3 - Laravel 8" />
-      <item itemvalue="PHPUnit.All PHP 8 - Laravel 8" />
       <item itemvalue="PHPUnit.All PHP 8 - Laravel 7" />
+      <item itemvalue="PHPUnit.All PHP 8 - Laravel 8" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -316,7 +314,8 @@
       <workItem from="1600342306803" duration="7118000" />
       <workItem from="1601442585200" duration="596000" />
       <workItem from="1607092206338" duration="3048000" />
-      <workItem from="1607350170993" duration="2250000" />
+      <workItem from="1607350170993" duration="4325000" />
+      <workItem from="1607512527247" duration="277000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <created>1554413532209</created>
@@ -437,7 +436,14 @@
       <option name="project" value="LOCAL" />
       <updated>1607095196362</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="added local testing helper script">
+      <created>1607352654731</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1607352654731</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -487,7 +493,8 @@
     <MESSAGE value="Added support for laravel 7/8 and removed moontoast/math dependency" />
     <MESSAGE value="added travis config for laravel 7/8" />
     <MESSAGE value="added travis config for PHP 8" />
-    <option name="LAST_COMMIT_MESSAGE" value="added travis config for PHP 8" />
+    <MESSAGE value="added local testing helper script" />
+    <option name="LAST_COMMIT_MESSAGE" value="added local testing helper script" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
