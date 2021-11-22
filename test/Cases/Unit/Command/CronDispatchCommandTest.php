@@ -19,7 +19,7 @@
 				->willReturn(4);
 
 
-			$this->artisan('cron:dispatch', ['period' => 60])
+			$this->artisan('cron:dispatch', ['period' => '60'])
 				->expectsOutput('Dispatched 4 cron job(s).')
 				->assertExitCode(0);
 			;
@@ -33,7 +33,7 @@
 				->method('dispatch');
 
 
-			$this->artisan('cron:dispatch', ['period' => 0])
+			$this->artisan('cron:dispatch', ['period' => '0'])
 				->assertExitCode(1);
 			;
 

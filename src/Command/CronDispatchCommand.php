@@ -36,7 +36,7 @@
 
 			$now = time();
 
-			$period = $this->argument('period');
+			$period = (int)$this->argument('period');
 
 			if ($period <= 0) {
 				$this->error("Period must be greater than 0, got $period");
