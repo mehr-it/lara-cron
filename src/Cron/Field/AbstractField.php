@@ -195,7 +195,8 @@
 		 * @return int The number
 		 */
 		protected function parseToken(string $expression) {
-			if (!$this->isInBounds($expression))
+			
+			if (trim($expression) === '' || !$this->isInBounds($expression))
 				throw new InvalidCronFieldExpressionException($this->expression, $this->field);
 
 			return (int)$expression;

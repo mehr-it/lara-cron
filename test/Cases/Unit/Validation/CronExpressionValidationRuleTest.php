@@ -12,12 +12,12 @@
 	class CronExpressionValidationRuleTest extends TestCase
 	{
 
-		protected function check($expresion) {
+		protected function check($expression) {
 
 			/** @var Validator $validator */
 			$validator = \Validator::make(
 				[
-					'field' => $expresion
+					'field' => $expression
 				],
 				[
 					'field' => new CronExpressionValidationRule()
@@ -39,9 +39,16 @@
 			$this->assertSame('Cron expression is invalid', $this->check('* 65 * * *'));
 
 		}
+		
 		public function testInvalid_NumberOfFields() {
 
 			$this->assertSame('Cron expression is invalid', $this->check('* 1 * *'));
+
+		}
+
+		public function testIncompleteList() {
+
+			$this->assertSame('Cron expression is invalid', $this->check('2, 1 * * *'));
 
 		}
 
