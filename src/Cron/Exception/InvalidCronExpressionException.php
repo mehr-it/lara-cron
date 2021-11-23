@@ -28,7 +28,7 @@
 
 			$this->expression = $expression;
 
-			if ($message)
+			if (!$message)
 				$message = "Expression \"$expression\" is not a valid cron expression";
 
 			parent::__construct($message, $code, $previous);

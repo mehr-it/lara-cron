@@ -20,11 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e426309-dc14-4ccd-810b-f63b70752007" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/lara-dynamic-schedules.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/lara-dynamic-schedules.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Command/CronDispatchCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Command/CronDispatchCommand.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Cases/Unit/Command/CronDispatchCommandTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/test/Cases/Unit/Command/CronDispatchCommandTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Cron/Exception/InvalidCronExpressionException.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Cron/Exception/InvalidCronExpressionException.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Cron/Exception/InvalidCronFieldExpressionException.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Cron/Exception/InvalidCronFieldExpressionException.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -337,7 +335,7 @@
       <workItem from="1607350170993" duration="4325000" />
       <workItem from="1607512527247" duration="277000" />
       <workItem from="1607523241960" duration="43000" />
-      <workItem from="1637595767637" duration="1284000" />
+      <workItem from="1637595767637" duration="2631000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <created>1554413532209</created>
@@ -472,7 +470,14 @@
       <option name="project" value="LOCAL" />
       <updated>1607523259251</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="FIX: type error in PHP8 when invoking CronDispatchCommand from console">
+      <created>1637597121588</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1637597121588</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -524,7 +529,8 @@
     <MESSAGE value="added travis config for PHP 8" />
     <MESSAGE value="added local testing helper script" />
     <MESSAGE value="removed bug in test script when TEST_PACKAGES is empty" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed bug in test script when TEST_PACKAGES is empty" />
+    <MESSAGE value="FIX: type error in PHP8 when invoking CronDispatchCommand from console" />
+    <option name="LAST_COMMIT_MESSAGE" value="FIX: type error in PHP8 when invoking CronDispatchCommand from console" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

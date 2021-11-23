@@ -34,7 +34,7 @@
 			$this->field      = $field;
 
 
-			if ($message)
+			if (!$message)
 				$message = "Expression \"$expression\" is invalid for field $field";
 
 			parent::__construct($message, $code, $previous);
